@@ -1,0 +1,31 @@
+body {
+    font-family: Arial, sans-serif;
+    background: url('https://i.pinimg.com/originals/95/9f/b1/959fb1f51bc1026ace27acede55e1bc8.gif') no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+}
+header {
+    background: transparent;
+    color: #fff;
+    padding: 2rem 0 0 0;
+    text-align: center;
+}
+main {
+    padding: 2rem;
+    background: rgba(0,0,0,0.7);
+    margin: 2rem auto;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    color: #fff;
+}
+footer {
+    text-align: center;
+    padding: 1rem 0;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+}
