@@ -27,7 +27,7 @@ header {
     left: 33%;
     transform: translate(-50%, -50%);
     color: white;
-    font-size: 2rem;
+    font-size: 1.75vw;
     font-weight: bold;
     text-shadow: 2px 2px 8px #000;
     pointer-events: none;
@@ -39,7 +39,7 @@ header {
     left: 26.5%;
     transform: translate(-50%, -50%);
     color: white;
-    font-size: 2rem;
+    font-size: 1.75vw;
     font-weight: bold;
     text-shadow: 2px 2px 8px #000;
     pointer-events: none;
