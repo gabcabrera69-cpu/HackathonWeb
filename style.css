@@ -6,17 +6,21 @@ body {
     padding: 0;
 }
 .logo {
+    width: 37%;
+    height: auto;
     position: absolute;
-    top: 10%;
+    top: 60px;
     left: 20px;
-    width: 200px;
-    height: 200px;
-    z-index: 3;
+    z-index: 4;
 }
+.logo-container {
+    max-width: 250px; 
+}
+
 header {
     background: transparent;
     color: #fff;
-    padding: 2rem 0 0 0;
+    padding: 1.5rem 0 0 0;
     text-align: center;
     position: relative;
     
