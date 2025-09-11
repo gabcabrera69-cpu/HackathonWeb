@@ -18,11 +18,12 @@ header {
     color: #fff;
     padding: 2rem 0 0 0;
     text-align: center;
+    position: relative;
     
 }
 .header-text {
     position: absolute;
-    top: 10%;
+    top: 40%;
     left: 33%;
     transform: translate(-50%, -50%);
     color: white;
@@ -34,7 +35,7 @@ header {
 }
 .header-text2 {
     position: absolute;
-    top: 15%;
+    top: 55%;
     left: 26.5%;
     transform: translate(-50%, -50%);
     color: white;
