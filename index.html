@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <nav class="side-nav">
+        <ul>
+            <li><a href="#about" class="nav-link active">About</a></li>
+            <li><a href="#demo" class="nav-link">Project Demo</a></li>
+        </ul>
+    </nav>
     <header>
         <div class="logo-container">
         <img src="https://i.imgur.com/AajvY24.png" 
@@ -15,17 +21,19 @@
     <video src="https://i.imgur.com/UGO7bgu.mp4" autoplay loop muted class="header-video"></video>
     </header>
     <main>
-    <h1>PROJECT GENESIS</h1>
-    <p class="center-text">Under Construction!(｡>﹏<)</p>
+    <h1 id="about">PROJECT GENESIS</h1>
+    <p class="center-text">Under Construction!(｡>﹏<)<br><br></p>
     
     <h2 class="section-title">About</h2>
     <p class="justified-text">Space habitats are “homes in space” that keep crew members healthy and able to execute their mission. 
         Whether located on a planetary surface or in space, habitats must support critical functions such as waste management, thermal control, life support, communications, power, stowage, food storage and preparation, medical care, sleep, and exercise. 
         Space habitat concepts can involve a diverse array of materials, geometries, and layouts. 
-        Your challenge is to create a visual tool that enables users to define a space habitat’s shape/volume and explore possible layout options.</p>
+        Your challenge is to create a visual tool that enables users to define a space habitat’s shape/volume and explore possible layout options.<br><br>
+        This is made for the purpose of providing an interactive simulation that can be both an entertaining and educational tool, 
+        empowering users to learn about the principles of space habitat design through interactive, creative play.</p>
 
     <section class="gallery-section">
-        <h2 class="section-title">Project Demo</h2>
+        <h2 id="demo" class="section-title">Project Demo</h2>
         
         <div class="video-container">
             <iframe width="1312" height="738" src="https://www.youtube.com/embed/Wgbjt81N7xo" title="&quot;You&#39;ll Be In My Heart Forever&quot;  | T.I.P. Hymn Video (2023 Version)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
@@ -54,5 +62,6 @@
     <footer>
         <p>&copy; 2025 Technological Institute of the Philippines</p>
     </footer>
+    <script src="script.js"></script>
 </body>
 </html>
