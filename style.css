@@ -137,6 +137,63 @@ footer {
     color: #b0b0b0;
 }
 
+/* Image Grid for Team Members */
+.team-section {
+    padding: 60px 20px;
+    background: #1a1a1a;
+    border-radius: 8px;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40px;
+}
+
+.team-member {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease-in-out;
+}
+
+.team-member:hover {
+    transform: translateY(-10px); 
+}
+
+.team-member img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover; 
+    border: 3px solid #ffffff;
+    margin-bottom: 20px;
+}
+
+.team-member h3 {
+    color: #e0e0e0;
+    font-size: 1.5em;
+    margin: 0 0 5px;
+}
+
+.team-member p {
+    color: #b0b0b0;
+    font-size: 1em;
+    font-style: italic;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* ---- Side Navigation Styles ---- */
 .side-nav {
     position: fixed; 

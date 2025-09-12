@@ -1,4 +1,4 @@
-const sections = document.querySelectorAll('main h2[id]');
+const sections = document.querySelectorAll('main [id]');
 const navLinks = document.querySelectorAll('.nav-link');
 
 window.addEventListener('scroll', () => {
@@ -18,3 +18,4 @@ window.addEventListener('scroll', () => {
         }
     });
 });
+
