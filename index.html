@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hackathon Web Trial</title>
     <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
     <nav class="side-nav">
@@ -100,9 +101,31 @@
         </div>
 </section>
     </main>
+
+<div class="chatbot-container">
+    <div class="chatbot-icon" onclick="toggleChat()">
+        <img src="https://i.imgur.com/9S44Fwz.png" alt="Chatbot Icon">
+    </div>
+    <div class="chat-window" id="chat-window">
+        <div class="chat-header">
+            <h3>PROJECT GENESIS Bot</h3>
+            <span class="close-btn" onclick="toggleChat()">&times;</span>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="bot-message">Hello! I'm here to answer your questions about Project Genesis. What would you like to know?</div>
+        </div>
+        <div class="chat-input-container">
+            <input type="text" id="chat-input" placeholder="Ask a question..." onkeypress="handleKeyPress(event)">
+            <button id="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</div>
+
     <footer>
         <p>&copy; 2025 Technological Institute of the Philippines</p>
     </footer>
     <script src="script.js"></script>
+
+    
 </body>
 </html>
