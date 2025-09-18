@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hackathon Web Trial</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
 </head>
 <body>
@@ -33,6 +34,28 @@
         Your challenge is to create a visual tool that enables users to define a space habitat’s shape/volume and explore possible layout options.<br><br>
         This is made for the purpose of providing an interactive simulation that can be both an entertaining and educational tool, 
         empowering users to learn about the principles of space habitat design through interactive, creative play.</p>
+
+    <section class="interactive-section">
+        <h2 class="section-title">Interactive 3D Planet Simulation</h2>
+        <div id="planet-container"></div>
+        <div id="ui-panel">
+        <div class="slider-container">
+            <label for="radius-slider">Radius</label>
+            <input type="range" id="radius-slider" min="10" max="100" value="50">
+            <span id="radius-value">50</span>
+        </div>
+        <div class="slider-container">
+            <label for="temp-slider">Temperature</label>
+            <input type="range" id="temp-slider" min="-200" max="200" value="0">
+            <span id="temp-value">0 °C</span>
+        </div>
+        <div class="slider-container">
+            <label for="insolation-slider">Insolation</label>
+            <input type="range" id="insolation-slider" min="0" max="100" value="50">
+            <span id="insolation-value">50</span>
+        </div>
+        </div>
+    </section>
 
     <section class="gallery-section">
         <h2 id="demo" class="section-title">Project Demo</h2>
