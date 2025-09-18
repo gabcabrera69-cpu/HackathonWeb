@@ -2,23 +2,46 @@
 const sections = document.querySelectorAll('main [id]');
 const navLinks = document.querySelectorAll('.nav-link');
 
-window.addEventListener('scroll', () => {
+function updateActiveSection() {
     let current = '';
+    const scrollPosition = window.pageYOffset + window.innerHeight / 3;
+
     sections.forEach(section => {
         const sectionTop = section.offsetTop;
         const sectionHeight = section.clientHeight;
-        if (pageYOffset >= sectionTop - sectionHeight / 3) {
+        const sectionBottom = sectionTop + sectionHeight;
+
+        // Check if the scroll position is within the section's bounds
+        if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
             current = section.getAttribute('id');
         }
     });
 
+    // If no section is in view, optionally set a default or keep the last active
+    if (!current && sections.length > 0) {
+        const lastSection = sections[sections.length - 1];
+        if (scrollPosition >= lastSection.offsetTop) {
+            current = lastSection.getAttribute('id'); // Handle case where scrolled past last section
+        }
+    }
+
+    // Update active link
     navLinks.forEach(link => {
         link.classList.remove('active');
-        if (link.getAttribute('href').includes(current)) {
+        const href = link.getAttribute('href');
+        if (href === `#${current}`) {
             link.classList.add('active');
         }
     });
-});
+
+    // Debug logging
+    console.log('Scroll Position:', scrollPosition, 'Active Section:', current);
+}
+
+window.addEventListener('scroll', updateActiveSection);
+
+// Run initially to set active section on page load
+updateActiveSection();
 
 // --- Chatbot Logic ---
 const chatWindow = document.getElementById('chat-window');
@@ -90,23 +113,90 @@ function getBotResponse(input) {
     return "I'm sorry, I don't have information on that. I can only answer questions about Project Genesis.";
 }
 
+// --- Planet Generator Logic ---
 const container = document.getElementById('planet-container');
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-// Check if the planet container exists before appending to it
 if (container) {
     container.appendChild(renderer.domElement);
 }
 
 const geometry = new THREE.SphereGeometry(50, 64, 64);
-const material = new THREE.MeshLambertMaterial({ color: 0x808080 });
-const planet = new THREE.Mesh(geometry, material);
+const textureLoader = new THREE.TextureLoader();
+
+// List of planet texture paths
+const textures = [
+    'https://i.imgur.com/zlnvuaI.jpeg',
+    'https://i.imgur.com/v9vKt4T.jpeg',
+    'https://i.imgur.com/nVEgUBd.jpeg',
+    'https://i.imgur.com/I4PhNbE.jpeg',
+    'https://i.imgur.com/ivNyaJo.jpeg',
+    'https://i.imgur.com/jxuq7Wj.jpeg',
+    'https://i.imgur.com/bj8hvU4.jpeg',
+    'https://i.imgur.com/RF0Gb8A.jpeg',
+    'https://i.imgur.com/5BO62v7.jpeg',
+    'https://i.imgur.com/vh2ApNc.jpeg',
+    'https://imgur.com/pp6V4rC.jpeg',
+    'https://i.imgur.com/bGwIGAH.jpeg',
+    'https://i.imgur.com/xEl0Hp5.jpeg',
+    'https://i.imgur.com/t5a5hUS.jpeg',
+    'https://i.imgur.com/VVH74ia.jpeg',
+    'https://i.imgur.com/SztsBYE.jpeg'
+
+];
+
+
+// Shader material to blend texture and color
+const vertexShader = `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const fragmentShader = `
+  uniform sampler2D uTexture;
+  uniform vec3 uColor;
+  varying vec2 vUv;
+
+  void main() {
+    vec4 textureColor = texture2D(uTexture, vUv);
+    // Multiply the texture color by the uniform color
+    gl_FragColor = textureColor * vec4(uColor, 1.0);
+  }
+`;
+
+const shaderUniforms = {
+    uTexture: { value: null },
+    uColor: { value: new THREE.Color(0x808080) }
+};
+
+const planetMaterial = new THREE.ShaderMaterial({
+    uniforms: shaderUniforms,
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
+});
+
+const planet = new THREE.Mesh(geometry, planetMaterial);
 scene.add(planet);
 
-const ambientLight = new THREE.AmbientLight(0x404040, 2);
+// Function to randomly select and apply a new texture
+function randomizePlanet() {
+    const randomTexturePath = textures[Math.floor(Math.random() * textures.length)];
+    const newTexture = textureLoader.load(randomTexturePath, (texture) => {
+        planetMaterial.uniforms.uTexture.value = texture;
+    });
+}
+
+// Initial texture on page load
+randomizePlanet();
+
+// --- Other Three.js Setup (existing code) ---
+const ambientLight = new THREE.AmbientLight(0x404040, 0.2);
 scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -115,6 +205,7 @@ scene.add(directionalLight);
 
 camera.position.z = 200;
 
+// (Existing code for sliders and animation goes here)
 const radiusSlider = document.getElementById('radius-slider');
 const tempSlider = document.getElementById('temp-slider');
 const insolationSlider = document.getElementById('insolation-slider');
@@ -134,16 +225,17 @@ function updatePlanetRadius(value) {
 }
 
 function updatePlanetTemperature(value) {
-    if (planet) {
-        const temp = parseFloat(value);
-        const r = Math.min(1, Math.max(0, (temp - 0) / 200));
-        const b = Math.min(1, Math.max(0, (-temp - 0) / 200));
-        const g = 0.5;
-        const newColor = new THREE.Color(r, g, b);
-        material.color.set(newColor);
-        if (tempValueSpan) {
-            tempValueSpan.textContent = `${temp} °C`;
-        }
+    const temp = parseFloat(value);
+    // Changes color based on temperature: blue (cold) to red (hot)
+    const r = Math.min(1, Math.max(0, (temp + 100) / 200));
+    const b = Math.min(1, Math.max(0, (-temp + 100) / 200));
+    const newColor = new THREE.Color(r, 0.5, b);
+    
+    // Update the shader's color uniform
+    planetMaterial.uniforms.uColor.value = newColor;
+
+    if (tempValueSpan) {
+        tempValueSpan.textContent = `${temp} °C`;
     }
 }
 
@@ -157,21 +249,23 @@ function updateInsolation(value) {
     }
 }
 
-// Check if sliders exist before adding event listeners
 if (radiusSlider) {
     radiusSlider.addEventListener('input', (event) => updatePlanetRadius(event.target.value));
-    // Initial setup
     updatePlanetRadius(radiusSlider.value);
 }
 if (tempSlider) {
     tempSlider.addEventListener('input', (event) => updatePlanetTemperature(event.target.value));
-    // Initial setup
     updatePlanetTemperature(tempSlider.value);
 }
 if (insolationSlider) {
     insolationSlider.addEventListener('input', (event) => updateInsolation(event.target.value));
-    // Initial setup
     updateInsolation(insolationSlider.value);
+}
+
+// Add a button to the UI to trigger the new texture function
+const randomizeButton = document.getElementById('randomize-btn');
+if (randomizeButton) {
+    randomizeButton.addEventListener('click', randomizePlanet);
 }
 
 function animate() {
@@ -182,12 +276,10 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-// Start animation after the window has loaded
 window.onload = function () {
     animate();
 };
 
-// Handle window resizing
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();

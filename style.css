@@ -35,6 +35,15 @@ header {
     display: block;
 }
 
+.about-section {
+    position: relative;
+    z-index: 1; 
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5); 
+    border-radius: 8px;
+    max-width: 800px;
+    margin: 0 auto 40px auto; 
+}
 
 h1 {
     text-align: center;
@@ -462,3 +471,4 @@ input[type="range"]:hover::-webkit-slider-thumb {
 input[type="range"]:hover::-moz-range-thumb {
     background: #c3c3ff;
 }
+
