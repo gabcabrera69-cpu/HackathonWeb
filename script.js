@@ -1,5 +1,3 @@
-
-
 const sections = document.querySelectorAll('main [id]');
 const navLinks = document.querySelectorAll('.nav-link');
 
@@ -94,4 +92,3 @@ function getBotResponse(input) {
 
     return "I'm sorry, I don't have information on that. I can only answer questions about Project Genesis.";
 }
-
