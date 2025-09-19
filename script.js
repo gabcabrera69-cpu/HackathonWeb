@@ -25,7 +25,6 @@ function updateActiveSection() {
         }
     }
 
-    // Update active link
     navLinks.forEach(link => {
         link.classList.remove('active');
         const href = link.getAttribute('href');
@@ -34,8 +33,6 @@ function updateActiveSection() {
         }
     });
 
-    // Debug logging
-    console.log('Scroll Position:', scrollPosition, 'Active Section:', current);
 }
 
 window.addEventListener('scroll', updateActiveSection);
@@ -44,6 +41,41 @@ window.addEventListener('scroll', updateActiveSection);
 updateActiveSection();
 
 // --- Chatbot Logic ---
+const chatbotResponses = {
+    
+    // Core Project Concepts
+    "exoplanet": "An exoplanet is simply a planet that orbits a star outside of our solar system. The discovery of these distant worlds is a huge field in astronomy.",
+    "find exoplanets": "We use machine learning models trained on publicly available datasets from NASA. These models are designed to automatically analyze transit data and identify potential exoplanets, which is a lot faster than manual analysis.",
+    "work": "We use machine learning models trained on publicly available datasets from NASA. These models are designed to automatically analyze transit data and identify potential exoplanets, which is a lot faster than manual analysis.",
+    "transit method": "The transit method is how many exoplanets are discovered. It involves observing a star's light for a slight, periodic dip in brightness. This dip suggests that a planet is passing in front of the star, or 'transiting.'",
+
+    // Datasets and Missions
+    "kepler and tess": "Both are NASA satellites that use the transit method to find exoplanets. Kepler focused on a single region of the sky for a long period, while TESS is designed to survey nearly the entire sky by observing brighter, closer stars.",
+    "kepler": "Kepler was a NASA satellite that focused on a single region of the sky to find exoplanets.",
+    "tess": "TESS is a NASA satellite that surveys nearly the entire sky by observing brighter, closer stars to find exoplanets.",
+    "data do you use": "We use open-source datasets from NASA missions like Kepler, K2, and TESS. This data includes confirmed exoplanets, planetary candidates, and false positives, along with variables like orbital period and planetary radius.",
+    "data publicly available": "Yes, all the data we use is publicly available through NASA. We've just applied machine learning to analyze it in a new way.",
+
+    // Machine Learning & Research
+    "automated classification": "Manual analysis of exoplanet data is incredibly time-consuming. Automated classification allows us to process vast amounts of data quickly and efficiently, which could lead to the discovery of many new exoplanets that might otherwise be missed.",
+    "accuracy": "Promising research studies have shown that machine learning models can achieve high-accuracy results in identifying exoplanets. Our goal is to build on that research and provide a reliable tool for classification.",
+    "discover new exoplanets": "By automatically analyzing vast amounts of data that hasn't been fully studied yet, our project has the potential to uncover new exoplanets hiding within the datasets from satellites like Kepler and TESS.",
+
+    // Specific Terminology
+    "planetary candidate": "A planetary candidate is a potential exoplanet identified through data analysis that has yet to be officially confirmed by other methods.",
+    "false positive": "A false positive is a signal in the data that initially looks like an exoplanet transit but is later determined to be caused by something else, like a background star or instrumental noise.",
+
+    // Navigation and Help
+    "demonstration": "Yes, absolutely! The interactive simulator on our homepage visualizes some of the planets we've identified, allowing you to see their characteristics in 3D.",
+    "learn more": "You can check out the Resources tab on our website for links to the NASA datasets and research papers that inspired this project.",
+    "resources": "You can check out the Resources tab on our website for links to the NASA datasets and research papers that inspired this project.",
+
+    // General conversation starters
+    "how are you": "I'm doing great, thanks for asking! I'm here to help you learn about Orbital Horizon and the fascinating world of exoplanets.",
+    "orbital horizon": "Orbital Horizon is a project that uses machine learning to identify exoplanets from large NASA datasets. Our goal is to make this data more accessible and to help uncover new planets hidden within the data from missions like Kepler and TESS.",
+    "project about": "Orbital Horizon is a project that uses machine learning to identify exoplanets from large NASA datasets. Our goal is to make this data more accessible and to help uncover new planets hidden within the data from missions like Kepler and TESS.",
+    "what is": "That's a great question! What specifically would you like to know more about?",
+};
 const chatWindow = document.getElementById('chat-window');
 const chatInput = document.getElementById('chat-input');
 const chatMessages = document.getElementById('chat-messages');
@@ -71,46 +103,44 @@ function sendMessage() {
     const userMessage = chatInput.value.trim();
     if (userMessage === '') return;
 
-    // Display user's message
-    appendMessage(userMessage, 'user');
+    // user message
+    appendMessage(userMessage, 'user-message');
     chatInput.value = '';
 
-    // Get bot response
+    // bot response
     const botResponse = getBotResponse(userMessage);
     setTimeout(() => {
-        appendMessage(botResponse, 'bot');
+        appendMessage(botResponse, 'bot-message');
     }, 500);
 }
 
-function appendMessage(message, sender) {
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add(sender + '-message');
-    messageDiv.innerText = message;
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+function appendMessage(message, className) {
+    const messagesContainer = document.getElementById('chat-messages');
+    const messageElement = document.createElement('div');
+    messageElement.classList.add(className);
+    messageElement.innerText = message;
+    messagesContainer.appendChild(messageElement);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
 function getBotResponse(input) {
-    const lowerInput = input.toLowerCase();
-    if (lowerInput.includes('what') && lowerInput.includes('genesis')) {
-        return "PROJECT GENESIS is an interactive simulator designed to help users define and explore space habitat layouts. It's a tool for both entertainment and education!";
+    const normalizedInput = input.toLowerCase();
+    
+    // Check for a direct match in the chatbotResponses object
+    if (chatbotResponses[normalizedInput]) {
+        return chatbotResponses[normalizedInput];
+    } 
+    
+    // Check for a partial match if no direct one is found
+    const responseKeys = Object.keys(chatbotResponses);
+    for (const key of responseKeys) {
+        if (normalizedInput.includes(key)) {
+            return chatbotResponses[key];
+        }
     }
-    if (lowerInput.includes('who') && lowerInput.includes('team')) {
-        return "Our team is a group of dedicated students from the Technological Institute of the Philippines (T.I.P.), led by our coach, Engr. Menchie Rosales.";
-    }
-    if (lowerInput.includes('how') && lowerInput.includes('work')) {
-        return "The simulator allows users to customize a habitat’s shape, volume, and interior layout, providing a visual tool to learn about space habitat design principles.";
-    }
-    if (lowerInput.includes('what') && lowerInput.includes('purpose')) {
-        return "The purpose of this project is to create an educational tool that empowers users to learn about space habitat design through interactive play and creativity.";
-    }
-    if (lowerInput.includes('hello') || lowerInput.includes('hi')) {
-        return "Hello! I'm glad to help. Ask me anything about Project Genesis.";
-    }
-    if (lowerInput.includes('thank')) {
-        return "You're welcome! Feel free to ask more questions.";
-    }
-    return "I'm sorry, I don't have information on that. I can only answer questions about Project Genesis.";
+    
+    // Fallback response if no match is found
+    return "I'm sorry, I don't have an answer for that right now. Maybe try rephrasing your question?";
 }
 
 // --- Planet Generator Logic ---
@@ -119,6 +149,14 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
+//slider elements
+const radiusSlider = document.getElementById('radius-slider');
+const tempSlider = document.getElementById('temp-slider');
+const insolationSlider = document.getElementById('insolation-slider');
+const radiusValueSpan = document.getElementById('radius-value');
+const tempValueSpan = document.getElementById('temp-value');
+const insolationValueSpan = document.getElementById('insolation-value');
+
 
 if (container) {
     container.appendChild(renderer.domElement);
@@ -151,28 +189,46 @@ const textures = [
 
 // Shader material to blend texture and color
 const vertexShader = `
-  varying vec2 vUv;
-  void main() {
-    vUv = uv;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
+    varying vec2 vUv;
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+    void main() {
+        vUv = uv;
+        vNormal = normalize(normalMatrix * normal); // Transform normal to view space
+        vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz; // Transform position to view space
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
 `;
 
 const fragmentShader = `
-  uniform sampler2D uTexture;
-  uniform vec3 uColor;
-  varying vec2 vUv;
+    uniform sampler2D uTexture;
+    uniform vec3 uColor;
+    uniform vec3 uLightDirection; // Direction of the directional light
+    uniform float uLightIntensity; // Intensity of the directional light
+    varying vec2 vUv;
+    varying vec3 vNormal;
+    varying vec3 vPosition;
 
-  void main() {
-    vec4 textureColor = texture2D(uTexture, vUv);
-    // Multiply the texture color by the uniform color
-    gl_FragColor = textureColor * vec4(uColor, 1.0);
-  }
+    void main() {
+        vec4 textureColor = texture2D(uTexture, vUv);
+        
+        // Simple diffuse lighting
+        vec3 lightDir = normalize(uLightDirection);
+        vec3 normal = normalize(vNormal);
+        float diff = max(dot(normal, lightDir), 0.0);
+        vec3 diffuse = diff * uLightIntensity * vec3(1.0, 1.0, 1.0); // White light
+        
+        // Combine texture, color, and lighting
+        vec3 finalColor = textureColor.rgb * uColor * diffuse;
+        gl_FragColor = vec4(finalColor, 1.0);
+    }
 `;
 
 const shaderUniforms = {
     uTexture: { value: null },
-    uColor: { value: new THREE.Color(0x808080) }
+    uColor: { value: new THREE.Color(0x808080) },
+    uLightDirection: { value: new THREE.Vector3(50, 50, 50).normalize() }, 
+    uLightIntensity: { value: 1.0 }
 };
 
 const planetMaterial = new THREE.ShaderMaterial({
@@ -180,7 +236,6 @@ const planetMaterial = new THREE.ShaderMaterial({
     vertexShader: vertexShader,
     fragmentShader: fragmentShader,
 });
-
 const planet = new THREE.Mesh(geometry, planetMaterial);
 scene.add(planet);
 
@@ -195,23 +250,16 @@ function randomizePlanet() {
 // Initial texture on page load
 randomizePlanet();
 
-// --- Other Three.js Setup (existing code) ---
-const ambientLight = new THREE.AmbientLight(0x404040, 0.2);
+// --- Other Three.js Setup ---
+const ambientLight = new THREE.AmbientLight(0x404040, 1);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
 directionalLight.position.set(50, 50, 50);
 scene.add(directionalLight);
 
 camera.position.z = 200;
 
-// (Existing code for sliders and animation goes here)
-const radiusSlider = document.getElementById('radius-slider');
-const tempSlider = document.getElementById('temp-slider');
-const insolationSlider = document.getElementById('insolation-slider');
-const radiusValueSpan = document.getElementById('radius-value');
-const tempValueSpan = document.getElementById('temp-value');
-const insolationValueSpan = document.getElementById('insolation-value');
 
 function updatePlanetRadius(value) {
     if (planet) {
@@ -243,11 +291,14 @@ function updateInsolation(value) {
     if (directionalLight) {
         const intensity = parseFloat(value) / 100;
         directionalLight.intensity = intensity;
+        planetMaterial.uniforms.uLightIntensity.value = intensity;
         if (insolationValueSpan) {
             insolationValueSpan.textContent = value;
         }
     }
 }
+
+
 
 if (radiusSlider) {
     radiusSlider.addEventListener('input', (event) => updatePlanetRadius(event.target.value));
