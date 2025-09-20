@@ -217,6 +217,20 @@ footer {
         transform: none;
         width: 80%;
     }
+
+    .chatbot-icon {
+        width: 120px;
+        height: 120px;
+    }
+
+    .chat-window {
+        width: 95vw;
+        height: 60vh;
+        max-width: 275px;
+        right: 10px;
+        bottom: 130px;
+    }
+
 }
 
 /* ---- Side Navigation Styles ---- */
