@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Planet Simulator - Orbital Horizon</title>
+    <link rel="stylesheet" href="planet.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <nav class="top-nav">
+        <a href="index.html">← Back to Orbital Horizon</a>
+    </nav>
+
+    <main>
+        <section id="Simulator" class="interactive-section">
+            <h2 class="section-title">Interactive 3D Planet Simulation</h2>
+            <div id="planet-container"></div>
+            <div id="controls-wrapper">
+                <div id="ui-panel">
+                    <div class="slider-container">
+                        <label for="radius-input">Radius</label>
+                        <input type="range" id="radius-slider" min="10" max="1000" value="50" step="0.1">
+                        <input type="number" id="radius-input" min="10" max="1000" value="50" step="0.1">
+                    </div>
+                    <div class="slider-container">
+                        <label for="temp-input">Temperature (°C)</label>
+                        <input type="range" id="temp-slider" min="-200" max="200" value="0" step="0.1">
+                        <input type="number" id="temp-input" min="-200" max="200" value="0" step="0.1">
+                    </div>
+                    <div class="slider-container">
+                        <label for="insolation-input">Insolation</label>
+                        <input type="range" id="insolation-slider" min="0" max="100" value="50" step="0.1">
+                        <input type="number" id="insolation-input" min="0" max="100" value="50" step="0.1">
+                    </div>
+                    <button id="randomize-btn">Randomize Planet Surface</button>
+                </div>
+                <div id="comparison-panel">
+                    <p>Compare with:</p>
+                    <div class="comparison-buttons">
+                        <button class="compare-btn" data-body="earth">Earth</button>
+                        <button class="compare-btn" data-body="mars">Mars</button>
+                        <button class="compare-btn" data-body="moon">Moon</button>
+                        <button class="compare-btn" data-body="jupiter">Jupiter</button>
+                        <button class="compare-btn" data-body="sun">Sun</button>
+                        <button class="compare-btn" data-body="none">Clear</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Technological Institute of the Philippines</p>
+    </footer>
+
+    <script src="planet.js"></script>
+
+</body>
+</html>

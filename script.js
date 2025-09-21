@@ -4,7 +4,7 @@ const navLinks = document.querySelectorAll('.nav-link');
 
 function updateActiveSection() {
     let current = '';
-    const scrollPosition = window.pageYOffset + window.innerHeight / 3;
+    const scrollPosition = window.pageYOffset + window.innerHeight / 1.5;
 
     sections.forEach(section => {
         const sectionTop = section.offsetTop;

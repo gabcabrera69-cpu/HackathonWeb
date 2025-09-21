@@ -1,0 +1,218 @@
+body {
+    font-family: Arial, sans-serif;
+    background: url('https://i.pinimg.com/originals/95/9f/b1/959fb1f51bc1026ace27acede55e1bc8.gif') no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+footer {
+    text-align: center;
+    padding: 1rem 0;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    width: 100%;
+}
+
+.top-nav {
+    padding: 1rem 2rem;
+    background: rgba(0,0,0,0.5);
+}
+
+.top-nav a {
+    color: #ffd700;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2.5em;
+    color: #e0e0e0;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.interactive-section {
+    position: relative;
+    width: 100%;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    box-sizing: border-box;
+}
+
+#planet-container {
+    width: 90vw; /* Take more width */
+    height: 75vh; /* Adjust height */
+    max-width: 1400px;
+    max-height: 700px;
+    position: relative;
+}
+
+/* New wrapper for all controls */
+#controls-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+}
+
+/* UI panel styles */
+#ui-panel {
+    background-color: rgba(30, 30, 50, 0.7);
+    border-radius: 12px;
+    padding: 15px 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: row; /* Arrange sliders horizontally */
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.slider-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center items within each slider container */
+    gap: 5px;
+}
+
+.slider-container label {
+    font-weight: bold;
+}
+
+/* Style for the new number input fields */
+input[type="number"] {
+    width: 60px; /* Give it a fixed width */
+    padding: 5px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid #555;
+    color: #fff;
+    border-radius: 5px;
+    text-align: center;
+    margin-left: 10px;
+    font-family: Arial, sans-serif;
+    font-size: 0.9em;
+}
+
+/* Custom slider thumb and track styles */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #8e8eef;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #8e8eef;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+    background: #c3c3ff;
+}
+
+input[type="range"]:hover::-moz-range-thumb {
+    background: #c3c3ff;
+}
+
+#randomize-btn {
+    background: #ffd700;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    color: #1a1a1a;
+    font-weight: bold;
+}
+
+/* Comparison Panel Styles */
+#comparison-panel {
+    background-color: rgba(30, 30, 50, 0.7);
+    border-radius: 12px;
+    padding: 15px 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    text-align: center;
+}
+
+#comparison-panel p {
+    margin: 0 0 10px 0;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.comparison-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.compare-btn {
+    background: #5a5a7a;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    color: #fff;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+.compare-btn:hover {
+    background: #7a7a9a;
+}
+
+/* --- Responsive Styles for Mobile --- */
+@media (max-width: 768px) {
+    .section-title {
+        font-size: 1.8em; /* Reduce title size */
+        margin-bottom: 15px;
+    }
+
+    #planet-container {
+        height: 55vh; /* Reduce height to give more room for controls */
+    }
+
+    #controls-wrapper {
+        flex-direction: column; /* Stack the two control panels vertically */
+    }
+
+    #ui-panel {
+        flex-direction: column; /* Stack sliders vertically */
+        padding: 20px;
+    }
+
+    .slider-container {
+        width: 100%; /* Allow sliders to take more width */
+    }
+}

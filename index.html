@@ -13,9 +13,9 @@
     <nav class="side-nav">
         <ul>
             <li><a href="#about" class="nav-link active">About</a></li>
-            <li><a href="#Simulator" class="nav-link">Interactive Simulator</a></li>
             <li><a href="#demo" class="nav-link">Project Demo</a></li>
             <li><a href="#team" class="nav-link">The Team</a></li>
+            <li><a href="planet.html" class="nav-link" target="_blank">Interactive Simulator</a></li>
         </ul>
     </nav>
     <header>
@@ -46,29 +46,6 @@
         Much of the research has proven that preprocessing of data, as well as the choice of model, can result in high-accuracy identification. 
         Utilizing the Kepler, K2, TESS, and other NASA-created, open-source datasets can help lead to discoveries of new exoplanets hiding in the data these satellites have provided.
         </p>
-    </section>
-
-    <section id ="Simulator" class="interactive-section">
-        <h2 class="section-title">Interactive 3D Planet Simulation</h2>
-        <div id="planet-container"></div>
-        <div id="ui-panel">
-        <div class="slider-container">
-            <label for="radius-slider">Radius</label>
-            <input type="range" id="radius-slider" min="10" max="100" value="50">
-            <span id="radius-value">50</span>
-        </div>
-        <div class="slider-container">
-            <label for="temp-slider">Temperature</label>
-            <input type="range" id="temp-slider" min="-200" max="200" value="0">
-            <span id="temp-value">0 °C</span>
-        </div>
-        <div class="slider-container">
-            <label for="insolation-slider">Insolation</label>
-            <input type="range" id="insolation-slider" min="0" max="100" value="50">
-            <span id="insolation-value">50</span>
-        </div>
-        <button id="randomize-btn">Randomize Planet Surface</button>
-        </div>
     </section>
 
     <section id="demo" class="gallery-section">
@@ -166,7 +143,6 @@
 
     <script src="script.js"></script>
     <script src="chatbot.js"></script>
-    <script src="planet.js"></script>
 
 </body>
 </html>
