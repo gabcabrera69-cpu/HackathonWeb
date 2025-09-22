@@ -6,16 +6,24 @@
     <title>Hackathon Web Trial</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
     
 </head>
 <body>
+    <nav class="top-nav">
+        <ul>
+            <li><a href="index.html#about" class="nav-link active"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="data-processing.html" class="nav-link"><i class="fas fa-server"></i> Data Processing</a></li>
+            <li><a href="planet.html" class="nav-link"><i class="fas fa-meteor"></i> Interactive Simulator</a></li>
+        </ul>
+    </nav>
+
     <nav class="side-nav">
         <ul>
-            <li><a href="#about" class="nav-link active">About</a></li>
-            <li><a href="#demo" class="nav-link">Project Demo</a></li>
-            <li><a href="#team" class="nav-link">The Team</a></li>
-            <li><a href="planet.html" class="nav-link" target="_blank">Interactive Simulator</a></li>
+            <li><a href="#about" class="nav-link active"><i class="fas fa-info-circle"></i> About</a></li>
+            <li><a href="#demo" class="nav-link"><i class="fas fa-images"></i> Project Demo</a></li>
+            <li><a href="#team" class="nav-link"><i class="fas fa-users"></i> The Team</a></li>
         </ul>
     </nav>
     <header>
@@ -26,12 +34,18 @@
     <video src="https://i.imgur.com/UGO7bgu.mp4" autoplay loop muted class="header-video"></video>
     </header>
     <main>
-    <section id="about" class="about-section">
-    <h1>Orbital Horizon</h1>
-    <p class="center-text">The Limit to Vision.<br><br></p>
+    <section id="about">
+        <h1>Orbital Horizon</h1>
+        <p class="center-text">The Limit to Vision.<br><br></p>
     
-    <h2 class="section-title">About</h2>
-    <p class="justified-text">Exoplanetary identification is becoming an increasingly popular area of astronomical exploration.
+        <p class="justified-text">
+            Orbital Horizon is a project that uses machine learning to identify exoplanets from large NASA datasets. 
+            Our goal is to make this data more accessible and help uncover new planets hidden within the data from missions like Kepler and TESS. 
+            To take part in discovering these worlds with us, you can try the simulator <a href="planet.html" style="color: #0474cf;">here</a>.
+        </p>
+        
+        <h2 class="section-title">About</h2>
+        <p class="justified-text">Exoplanetary identification is becoming an increasingly popular area of astronomical exploration.
         Several survey missions have been launched with the primary objective of identifying exoplanets.
          Kepler is one of the more well-known transit-method satellites, and provided data for nearly a decade. 
          Kepler was followed by its successor mission, K2, which utilized the same hardware and transit method, but maintained a different path for surveying. 
@@ -57,20 +71,48 @@
 
         <div class="gallery-grid">
             <div class="gallery-item">
-                <img src="https://blz-contentstack-images.akamaized.net/v3/assets/blt0e00eb71333df64e/blt792ae823e2d6d0df/6580e3079ac620722d04b35a/media_gallery_6.webp" alt="A screenshot of a habitat layout being designed.">
-                <p class="caption">Customizing Planets</p>
+                <div class="gallery-item-inner">
+                    <div class="gallery-item-front">
+                        <img src="https://blz-contentstack-images.akamaized.net/v3/assets/blt0e00eb71333df64e/blt792ae823e2d6d0df/6580e3079ac620722d04b35a/media_gallery_6.webp" alt="A screenshot of a habitat layout being designed.">
+                        <p class="caption">Customizing Planets</p>
+                    </div>
+                    <div class="gallery-item-back">
+                        <img src="https://i.imgur.com/8CzxuDs.png" alt="3D Planet View">
+                    </div>
+                </div>
             </div>
             <div class="gallery-item">
-                <img src="https://science.nasa.gov/wp-content/uploads/2017/11/pia17944.jpg" alt="A screenshot of a Martian environment simulation.">
-                <p class="caption">Simulating a Mars environment</p>
+                <div class="gallery-item-inner">
+                    <div class="gallery-item-front">
+                        <img src="https://science.nasa.gov/wp-content/uploads/2017/11/pia17944.jpg" alt="A screenshot of a Martian environment simulation.">
+                        <p class="caption">Simulating a Mars environment</p>
+                    </div>
+                    <div class="gallery-item-back">
+                        <img src="https://i.imgur.com/VIj45Z7.png" alt="3D Planet View">
+                    </div>
+                </div>
             </div>
             <div class="gallery-item">
-                <img src="https://farm8.staticflickr.com/7571/16146937806_586c1ec78f_z.jpg" alt="A screenshot of the user interface dashboard.">
-                <p class="caption">User-friendly UI dashboard</p>
+                <div class="gallery-item-inner">
+                    <div class="gallery-item-front">
+                        <img src="https://farm8.staticflickr.com/7571/16146937806_586c1ec78f_z.jpg" alt="A screenshot of the user interface dashboard.">
+                        <p class="caption">User-friendly UI dashboard</p>
+                    </div>
+                    <div class="gallery-item-back">
+                        <img src="https://i.imgur.com/2z91jSu.png" alt="3D Planet View">
+                    </div>
+                </div>
             </div>
             <div class="gallery-item">
-                <img src="https://cdn.dribbble.com/userupload/11297073/file/original-16b4a2bff931fbc5a97291d6c7dd983d.png?resize=752x&vertical=center" alt="Another screenshot of the project in action.">
-                <p class="caption">Full project showcase</p>
+                <div class="gallery-item-inner">
+                    <div class="gallery-item-front">
+                        <img src="https://cdn.dribbble.com/userupload/11297073/file/original-16b4a2bff931fbc5a97291d6c7dd983d.png?resize=752x&vertical=center" alt="Another screenshot of the project in action.">
+                        <p class="caption">Full project showcase</p>
+                    </div>
+                    <div class="gallery-item-back">
+                        <img src="https://i.imgur.com/3XASbLi.png" alt="3D Planet View">
+                    </div>
+                </div>
             </div>
         </div>
     </section>

@@ -17,6 +17,13 @@ main {
     justify-content: center;
 }
 
+
+main {
+    max-width: none;
+    background: none;
+    box-shadow: none;
+}
+
 footer {
     text-align: center;
     padding: 1rem 0;
@@ -25,17 +32,24 @@ footer {
     width: 100%;
 }
 
-.top-nav {
-    padding: 1rem 2rem;
-    background: rgba(0,0,0,0.5);
+
+/* Ensure nav links on this page behave like the main page */
+.top-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
 }
 
-.top-nav a {
-    color: #ffd700;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 1.1em;
+.top-nav .nav-link {
+    border-left: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
+/* --- End of Unified Styles --- */
 
 .section-title {
     text-align: center;

@@ -161,7 +161,6 @@ function showComparison(bodyName) {
         scene.add(comparisonObject);
 
         // --- Calculate required camera zoom ---
-        // The total width is the rightmost edge of the comparison object minus the leftmost edge of the user's planet.
         const leftEdge = planet.position.x - userPlanetRadius;
         const rightEdge = comparisonObject.position.x + data.radius;
         const totalWidth = rightEdge - leftEdge;
@@ -171,8 +170,7 @@ function showComparison(bodyName) {
         const distanceForHeight = totalHeight / (2 * Math.tan(fov / 2));
         const distanceForWidth = totalWidth / (2 * Math.tan(fov / 2) * camera.aspect);
 
-        // Set the target Z position, adding a 20% buffer for padding
-        cameraTargetZ = Math.max(distanceForHeight, distanceForWidth) * 1.2;
+        cameraTargetZ = Math.max(distanceForHeight, distanceForWidth) * 1.4;
     } else {
         // If 'Clear' is pressed, ensure camera resets
         planet.position.x = 0;
@@ -216,7 +214,6 @@ function updatePlanetRadius(value) {
             // Recalculate positions to keep the pair centered
             const halfGap = 30 / 2; // The gap is 30 units
             planet.position.x = -userPlanetRadius - halfGap;
-            // The comparison object's position doesn't need to change as its radius is constant.
 
             // --- Recalculate camera zoom to fit the new size ---
             const leftEdge = planet.position.x - userPlanetRadius;
@@ -241,7 +238,7 @@ function updatePlanetRadius(value) {
             const distanceForWidth = totalWidth / (2 * Math.tan(fov / 2) * camera.aspect);
 
             // Set the target Z position, adding a buffer for padding
-            cameraTargetZ = Math.max(distanceForHeight, distanceForWidth) * 1.2;
+            cameraTargetZ = Math.max(distanceForHeight, distanceForWidth) * 1.4;
         }
         // Sync slider and input
         radiusInput.value = newRadius;
@@ -293,13 +290,13 @@ if (insolationSlider && insolationInput) {
     updateInsolation(insolationSlider.value);
 }
 
-// Add a button to the UI to trigger the new texture function
+//new texture function
 const randomizeButton = document.getElementById('randomize-btn');
 if (randomizeButton) {
     randomizeButton.addEventListener('click', randomizePlanet);
 }
 
-// Add event listeners for comparison buttons
+//listeners for comparison buttons
 const compareButtons = document.querySelectorAll('.compare-btn');
 compareButtons.forEach(button => {
     button.addEventListener('click', () => {
@@ -313,9 +310,8 @@ function animate() {
         planet.rotation.y += 0.005;
     }
     if (comparisonObject) {
-        comparisonObject.rotation.y += 0.002; // Rotate the comparison body
+        comparisonObject.rotation.y += 0.002;
     }
-    // Smoothly animate camera to target zoom level
     camera.position.z += (cameraTargetZ - camera.position.z) * 0.05;
 
     renderer.render(scene, camera);

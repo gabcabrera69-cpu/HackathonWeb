@@ -4,13 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Planet Simulator - Orbital Horizon</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="planet.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
     <nav class="top-nav">
-        <a href="index.html">← Back to Orbital Horizon</a>
+        <ul>
+            <li><a href="index.html#about" class="nav-link"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="data-processing.html" class="nav-link"><i class="fas fa-server"></i> Data Processing</a></li>
+            <li><a href="planet.html" class="nav-link active"><i class="fas fa-meteor"></i> Interactive Simulator</a></li>
+        </ul>
     </nav>
 
     <main>
@@ -55,6 +61,7 @@
         <p>&copy; 2025 Technological Institute of the Philippines</p>
     </footer>
 
+    <script src="script.js"></script>
     <script src="planet.js"></script>
 
 </body>

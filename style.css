@@ -1,3 +1,7 @@
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: Arial, sans-serif;
     background: url('https://i.pinimg.com/originals/95/9f/b1/959fb1f51bc1026ace27acede55e1bc8.gif') no-repeat center center fixed;
@@ -35,6 +39,40 @@ header {
     display: block;
 }
 
+.top-nav {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    padding: 0.5rem 1rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    transition: top 0.3s ease-in-out;
+    box-sizing: border-box;
+}
+
+.top-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.top-nav .nav-link {
+    border-left: none; /* Remove border from side-nav style */
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Adds space between icon and text */
+}
+
+.top-nav--hidden {
+    top: -100px; /* Hides the nav bar above the viewport */
+}
+
+
 .about-section {
     position: relative;
     z-index: 1; 
@@ -60,6 +98,7 @@ main {
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     color: #fff;
+    padding-bottom: 100px; 
 }
 
 footer {
@@ -119,27 +158,74 @@ footer {
 /* Image Grid for Gallery */
 .gallery-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px;
 }
 
 .gallery-item {
+    position: relative; /* Set as the positioning context */
+    height: 260px; /* Set a fixed height for the card */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+
+.gallery-item-front, .gallery-item-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: all 0.5s ease-in-out;
+}
+
+.gallery-item-front {
     background: #1a1a1a;
     border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-    transition: transform 0.3s ease;
+    z-index: 2; /* Keep the front on top initially */
+    display: flex;
+    flex-direction: column;
 }
 
-.gallery-item:hover {
-    transform: translateY(-5px);
-}
-
-.gallery-item img {
+.gallery-item-front img {
+    height: 200px; /* Fixed height for the image part */
     width: 100%;
-    height: 200px;
     object-fit: cover;
-    display: block;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.gallery-item-back {
+    z-index: 1; /* Positioned behind the front card */
+    transform: translateY(50px) scale(0.8); /* Start hidden and scaled down */
+    opacity: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gallery-item:hover .gallery-item-back {
+    transform: translateY(0); /* Slide up into view */
+    opacity: 10; /* Make the back image visible on hover */
+    z-index: 3; /* Ensure it appears on top of the front card */
+}
+
+.gallery-item:hover .gallery-item-front {
+    transform: translateY(100%) scale(0.0); /* Slide the front card up and away */
+    opacity: 0.5;
+}
+
+.gallery-item-front img {
+    height: 200px; /* Re-asserting this rule for specificity */
+    width: 100%;
+    object-fit: cover; /* Ensure front image is always cropped */
+}
+
+.gallery-item-back img {
+    max-width: 150%; /* Allows the back image to be larger than the card */
+    width: auto;
+    height: auto;
+    max-height: 120%;
+    object-fit: contain; /* Ensures the full image is visible without being cut */
 }
 
 .gallery-item .caption {
@@ -147,6 +233,11 @@ footer {
     text-align: center;
     font-size: 1.1em;
     color: #b0b0b0;
+    margin: 0;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Image Grid for Team Members */
@@ -214,15 +305,15 @@ footer {
     }
 
     .chatbot-icon {
-        width: 60px;
-        height: 60px;
+        width: 30px;
+        height: 30px;
     }
 
     .chat-window {
         width: 95vw;
         height: 60vh;
         max-width: 275px;
-        right: 10px;
+        right: 5px;
         bottom: 130px;
     }
 
@@ -240,8 +331,17 @@ footer {
         font-size: 0.8em; /* Reduce font size */
         font-weight: normal; /* Make font less bold */
     }
-
+    
+    /* On mobile, show the top-nav and hide the side-nav for consistency */
+    .top-nav {
+        padding: 0.5rem; /* Reduce padding on mobile */
+    }
+    .top-nav ul {
+        gap: 10px; /* Reduce gap between items */
+        justify-content: space-around; /* Distribute items evenly */
+    }
 }
+
 
 /* ---- Side Navigation Styles ---- */
 .side-nav {
@@ -266,13 +366,16 @@ footer {
 }
 
 .nav-link {
-    display: block;
     padding: 8px 15px;
     color: #fff;
     text-decoration: none;
     font-weight: bold;
     border-left: 2px solid transparent; 
     transition: all 0.3s ease;
+    /* Added for icon alignment */
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .nav-link:hover {
