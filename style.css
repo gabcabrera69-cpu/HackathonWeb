@@ -4,52 +4,125 @@ html {
 
 body {
     font-family: Arial, sans-serif;
-    background: url('https://i.pinimg.com/originals/95/9f/b1/959fb1f51bc1026ace27acede55e1bc8.gif') no-repeat center center fixed;
-    background-size: cover;
+    background-color: #000; /* Fallback background color */
     margin: 0;
     padding: 0;
 }
 
-.logo {
-    width: 40%; 
-    max-width: 30%;
-    height: auto;
+.video-background-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Puts the video behind other content */
+    pointer-events: none; /* Allows clicks to go through to content behind it */
+    overflow: hidden;
+}
+
+.video-background-container::after {
+    content: '';
     position: absolute;
-    top: 50px;
-    left: 20px;
-    z-index: 3;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent; /* This makes it invisible */
+}
+
+.video-background-container iframe {
+    width: 100vw;
+    height: 56.25vw; /* 16:9 aspect ratio */
+    min-height: 100vh;
+    min-width: 177.77vh; /* 16:9 aspect ratio for vertical screens */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.logo {
+    width: 100%; 
+    max-width: 1000px; /* Adjust size as needed */
+    height: auto;
 }
 
 .logo-container {
-    max-width: 260px; 
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 1000px; /* Initial large size */
+    width: 90%; /* Responsive width */
+    z-index: 1001; /* Above nav bars */
+    transition: all 0.5s ease-in-out;
 }
 
-header {
-    background: transparent;
-    color: #fff;
-    padding: 1.5rem 0 0 0;
+.logo-container--scrolled {
+    top: 15px;
+    left: 20px;
+    max-width: 400px; /* Final small size */
+    transform: translate(0, 0);
+}
+
+.hero-section {
+    height: 100vh; /* Full viewport height */
     text-align: center;
     position: relative;
 }
 
-.header-video {
-    width: 100%;
-    height: 200px; 
-    object-fit: cover;
+.scroll-down-indicator {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-decoration: none;
+    width: 30px;
+    height: 50px;
+}
+
+.scroll-down-line-mask {
+    position: relative;
+    width: 2px; /* Line thickness */
+    height: 100%;
+    margin: 0 auto;
+    overflow: hidden; /* This will mask the line animation */
+}
+
+.scroll-down-indicator span {
     display: block;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    position: absolute;
+    top: -100%; /* Start above the mask */
+    animation: wipe-down 1.5s infinite ease-in-out;
+}
+
+@keyframes wipe-down {
+    0% {
+        top: -100%; /* Start hidden above */
+    }
+    50% {
+        top: 0; /* Wipe down in to view */
+    }
+    100% {
+        top: 100%; /* Wipe down out of view */
+    }
 }
 
 .top-nav {
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(10px);
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1.5rem;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
+    top: -100px; /* Start hidden above the viewport */
+    left: 50%;
+    transform: translateX(-50%); /* Center horizontally */
     z-index: 1000;
-    transition: top 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out; /* Animate all properties for smooth centering */
     box-sizing: border-box;
+    border-radius: 50px; /* This creates the circular/pill shape */
 }
 
 .top-nav ul {
@@ -62,14 +135,14 @@ header {
 }
 
 .top-nav .nav-link {
-    border-left: none; /* Remove border from side-nav style */
+    border-left: none;
     display: flex;
     align-items: center;
-    gap: 8px; /* Adds space between icon and text */
+    gap: 8px;
 }
 
-.top-nav--hidden {
-    top: -100px; /* Hides the nav bar above the viewport */
+.top-nav--visible {
+    top: 20px; /* Slides the nav bar into view with some top margin */
 }
 
 
@@ -93,7 +166,7 @@ h1 {
 main {
     padding: 2rem;
     background: rgba(0,0,0,0.7);
-    margin: 2rem auto;
+    margin: 10rem auto 2rem; /* Increased top margin for more space */
     max-width: 800px; 
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
@@ -101,15 +174,24 @@ main {
     padding-bottom: 100px; 
 }
 
+/* --- Fade-in Animation on Scroll --- */
+.fade-in-section {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.fade-in-section.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 footer {
     text-align: center;
     padding: 0.25rem 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.7);
     color: #fff;
-    position: fixed;
-    width: 100%;
-    bottom: 0;
-    z-index: 1000;;
+    margin-top: 2rem; /* Add some space above the footer */
 }
 
 .justified-text {
@@ -293,67 +375,18 @@ footer {
     margin: 0;
 }
 
-@media (max-width: 768px) {
-    .team-grid {
-        grid-template-columns: 1fr;
-    }
-
-
-    #ui-panel {
-        position: static;
-        transform: none;
-        width: 80%;
-    }
-
-    .chatbot-icon {
-        width: 30px;
-        height: 30px;
-    }
-
-    .chat-window {
-        width: 95vw;
-        height: 60vh;
-        max-width: 275px;
-        right: 5px;
-        bottom: 130px;
-    }
-
-    .side-nav {
-        right: 5px; /* Move closer to the edge */
-        padding: 5px; /* Reduce padding */
-    }
-
-    .side-nav li {
-        margin: 5px 0; /* Reduce vertical margin */
-    }
-
-    .nav-link {
-        padding: 6px 10px; /* Reduce padding */
-        font-size: 0.8em; /* Reduce font size */
-        font-weight: normal; /* Make font less bold */
-    }
-    
-    /* On mobile, show the top-nav and hide the side-nav for consistency */
-    .top-nav {
-        padding: 0.5rem; /* Reduce padding on mobile */
-    }
-    .top-nav ul {
-        gap: 10px; /* Reduce gap between items */
-        justify-content: space-around; /* Distribute items evenly */
-    }
-}
-
 
 /* ---- Side Navigation Styles ---- */
 .side-nav {
     position: fixed; 
     top: 50%; 
-    right: 20px; 
+    right: -200px; /* Start hidden off-screen */
     transform: translateY(-50%); 
     z-index: 100; 
     padding: 10px;
     background: rgba(0, 0, 0, 0.5);
     border-radius: 8px;
+    transition: right 0.3s ease-in-out;
 }
 
 .side-nav ul {
@@ -390,11 +423,20 @@ footer {
     background: rgba(255, 215, 0, 0.1);
 }
 
+.side-nav--visible {
+    right: 20px; 
+}
+
 .chatbot-container {
     position: fixed;
     bottom: 0px;
-    right: 1px;
+    right: -200px; /* Start hidden off-screen */
     z-index: 1000;
+    transition: right 0.3s ease-in-out;
+}
+
+.chatbot-container--visible {
+    right: 1px; /* Slide into view */
 }
 
 .chatbot-icon {
@@ -522,4 +564,65 @@ footer {
     0% { transform: scale(1); }
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
+}
+
+/* --- Responsive Styles --- */
+@media (max-width: 768px) {
+    
+    .logo-container--scrolled {
+        top: auto;
+        max-width: 150px;
+        left: 10px;
+        bottom: 10px; 
+    }
+
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #ui-panel {
+        position: static;
+        transform: none;
+        width: 80%;
+    }
+
+    .chatbot-icon {
+        width: 100px;
+        height: 100px;
+    }
+
+    .chat-window {
+        width: 95vw;
+        height: 45vh;
+        max-width: 275px;
+        right: 5px;
+        bottom: 130px;
+    }
+
+    .side-nav {
+        right: -200px; 
+        padding: 5px; /* Reduce padding */
+    }
+
+    .side-nav--visible {
+        right: 5px; /* On mobile, slide it closer to the edge */
+    }
+
+    .side-nav li {
+        margin: 5px 0; /* Reduce vertical margin */
+    }
+
+    .nav-link {
+        padding: 6px 10px; /* Reduce padding */
+        font-size: 0.8em; /* Reduce font size */
+        font-weight: normal; /* Make font less bold */
+    }
+    
+    .top-nav {
+        padding: 0.5rem; /* Reduce padding on mobile */
+    }
+    .top-nav ul {
+        gap: 10px; /* Reduce gap between items */
+        justify-content: space-around; /* Distribute items evenly */
+    }
 }
