@@ -148,25 +148,72 @@ h1 {
 }
 
 main {
-    padding: 2rem;
-    background: rgba(0,0,0,0.7);
-    margin: 10rem auto 2rem; /* Increased top margin for more space */
-    max-width: 800px; 
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    /* Make main container full width and remove margins */
+    padding: 0;
+    background: transparent;
+    margin: 100vh 0 0 0;
+    max-width: none; 
+    border-radius: 0;
+    box-shadow: none;
     color: #fff;
-    padding-bottom: 100px; 
+}
+
+/* --- Diagonal Section Styles --- */
+main > section {
+    position: relative;
+    padding: 100px 20px;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* This creates the parallax effect */
+    color: #fff;
+    box-shadow: inset 0 0 0 1000px rgba(0,0,0,0.6);
+}
+
+/* GIF backgrounds */
+#about {
+    background-image: url('https://i.pinimg.com/originals/ca/4d/23/ca4d2391455ade48053c0b6861842574.gif');
+    clip-path: polygon(0 5vw,100% 0, 100% calc(100% - 5vw), 0 100%);
+}
+
+#demo {
+    background-image: url('https://i.pinimg.com/originals/12/72/f7/1272f7e73de47c19e405c542fb9e4b69.gif');
+    clip-path: polygon(0 5vw,100% 0, 100% calc(100% - 5vw), 0 100%);
+    margin-top: -5vw;
+}
+
+#team {
+    background-image: url('https://wallpapers-clan.com/wp-content/uploads/2024/03/starfall-night-sky-mountains-aesthetic-gif-preview-desktop-wallpaper.gif');
+    clip-path: polygon(0 5vw, 100% 0, 100% 100%, 0 100%); 
+    margin-top: -5vw; 
+}
+
+.section-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: rgba(0,0,0,0.5);
+    border-radius: 8px;
 }
 
 /* --- Fade-in Animation on Scroll --- */
+/* The section itself will only fade in, not move. */
 .fade-in-section {
     opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    transition: opacity 0.8s ease-out;
 }
 
 .fade-in-section.is-visible {
     opacity: 1;
+}
+
+/* The content inside the section will slide up and fade in. */
+.fade-in-section .section-content {
+    transform: translateY(30px);
+    transition: transform 0.8s ease-out;
+}
+
+.fade-in-section.is-visible .section-content {
     transform: translateY(0);
 }
 
@@ -199,16 +246,14 @@ footer {
 
 .gallery-section {
     position: relative;
-    min-height: 80vh;
-    padding: 20px;
-    margin: 20px 0;
+    /* min-height and margin are handled by the new section styles */
 }
 
 /* Video Container for Responsiveness */
 .video-container {
     position: relative;
     width: 100%;
-    padding-bottom: 56.25%; 
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
     height: 0;
     margin-bottom: 40px;
 }
@@ -309,10 +354,7 @@ footer {
 
 /* Image Grid for Team Members */
 .team-section {
-    position: relative;
-    padding: 10px 20px;
-    background: #1a1a1a;
-    border-radius: 8px;
+    /* Styles are now handled by the generic section rules */
 }
 
 .team-grid {

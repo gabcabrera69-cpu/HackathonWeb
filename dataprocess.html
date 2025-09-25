@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NASA Exoplanet Data Preprocessing</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>NASA Exoplanet Data Preprocessing</h1>
+
+<div id="uploadSection">
+  <input type="file" id="fileInput" accept=".csv">
+  <button id="uploadBtn">Upload & Process</button>
+</div>
+
+<div id="trainSection" style="text-align:center; margin-bottom:20px; display:none;">
+  <label for="modelSelect">Select Model:</label>
+  <select id="modelSelect">
+    <option value="xgb">XGBClassifier</option>
+    <option value="lgbm">LGBMClassifier</option>
+  </select>
+
+  <div id="xgbParams" style="margin-top:10px; display:none;">
+    <h4>XGB Hyperparameters:</h4>
+    <label>N Estimators: <input type="number" id="nEstimators" placeholder="100"></label>
+    <label>Max Depth: <input type="number" id="maxDepth" placeholder="3"></label>
+    <label>Learning Rate: <input type="number" step="0.01" id="learningRate" placeholder="0.1"></label>
+  </div>
+  
+  <button id="trainBtn">Train Model</button>
+</div>
+
+
+<div id="steps"></div>
+<div id="metrics"></div>
+<div id="plots"></div>
+
+<script src="datascript.js"></script>
+</body>
+</html>
