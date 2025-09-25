@@ -34,7 +34,7 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
   formData.append("file", file);
 
   try {
-    const response = await fetch("https://orbital-horizon-backend.onrender.com", {
+    const response = await fetch("https://orbital-horizon-backend.onrender.com/upload", {
       method: "POST",
       body: formData
     });
@@ -151,7 +151,7 @@ trainBtn.addEventListener("click", async () => {
   const step = addStep("Training model...", true);
 
   try {
-    const response = await fetch("https://your-project-name.onrender.com/train", {
+    const response = await fetch("https://orbital-horizon-backend.onrender.com/train", {
       method:"POST",
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify({model, hyperparams})
