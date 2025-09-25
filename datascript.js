@@ -34,7 +34,7 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
   formData.append("file", file);
 
   try {
-    const response = await fetch("https://your-project-name.onrender.com/upload", {
+    const response = await fetch("https://orbital-horizon-backend.onrender.com", {
       method: "POST",
       body: formData
     });
