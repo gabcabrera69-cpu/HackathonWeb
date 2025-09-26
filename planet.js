@@ -14,6 +14,7 @@ const insolationSlider = document.getElementById('insolation-slider');
 const radiusInput = document.getElementById('radius-input');
 const tempInput = document.getElementById('temp-input');
 const insolationInput = document.getElementById('insolation-input');
+const loadingIndicator = document.getElementById('loading-indicator');
 
 if (container) {
     // Update camera aspect ratio
@@ -21,6 +22,8 @@ if (container) {
     camera.updateProjectionMatrix();
     // Set renderer size to the container's dimensions
     renderer.setSize(container.clientWidth, container.clientHeight);
+    // Make the renderer's canvas transparent
+    renderer.setClearColor(0x000000, 0);
     // Add the canvas to the container
     container.appendChild(renderer.domElement);
 }
@@ -413,10 +416,24 @@ function storeCustomPlanet() {
 
 // Function to randomly select and apply a new texture
 function randomizePlanet() {
+    if (loadingIndicator) loadingIndicator.style.display = 'block';
+
     const randomTexturePath = textures[Math.floor(Math.random() * textures.length)];
-    const newTexture = textureLoader.load(randomTexturePath, (texture) => {
-        planetMaterial.uniforms.uTexture.value = texture;
-    });
+    textureLoader.load(
+        randomTexturePath,
+        // onLoad callback
+        (texture) => {
+            planetMaterial.uniforms.uTexture.value = texture;
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+        },
+        // onProgress callback (optional)
+        undefined,
+        // onError callback
+        (err) => {
+            console.error('An error occurred loading the texture:', err);
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+        }
+    );
 }
 
 // Initial texture on page load

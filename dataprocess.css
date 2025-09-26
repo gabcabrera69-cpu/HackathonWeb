@@ -1,14 +1,5 @@
 /* --- Data Processing Page Specific Styles --- */
 
-/* Override main to allow content to be centered */
-main {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; /* Align to top */
-    padding-top: 100px; /* Space from top nav */
-    min-height: 100vh;
-}
-
 .processing-section {
     width: 90%;
     max-width: 1200px;
@@ -94,8 +85,14 @@ select, input[type="number"] {
 }
 
 /* --- Results Styling --- */
-#steps {
-    margin-top: 2rem;
+#results-container {
+    margin-top: 0; /* Remove the top margin to pull results up */
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#preprocessing-results, #training-results {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -106,6 +103,11 @@ select, input[type="number"] {
     padding: 1rem;
     border-radius: 5px;
     border-left: 3px solid #ffd700;
+}
+.step h4 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    color: #ffd700;
 }
 
 .loading {
@@ -124,11 +126,94 @@ select, input[type="number"] {
     to { transform: rotate(360deg); }
 }
 
-#plots img {
+/* --- Table Styles --- */
+.step table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-size: 0.9em;
+}
+
+.step th, .step td {
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: left;
+}
+
+.step th {
+    background-color: rgba(255, 215, 0, 0.2);
+}
+
+.step tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* --- Training Results --- */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.metric-card {
+    background: rgba(0,0,0,0.3);
+    padding: 1.5rem;
+    border-radius: 5px;
+    text-align: center;
+    border-left: 3px solid #4CAF50; /* Green for success metrics */
+}
+
+.metric-card h4 {
+    margin: 0 0 0.5rem 0;
+    color: #ccc;
+    font-size: 1em;
+    text-transform: uppercase;
+}
+
+.metric-card p {
+    margin: 0;
+    font-size: 2em;
+    font-weight: bold;
+    color: #fff;
+}
+
+.plots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.plot-card {
+    background: rgba(0,0,0,0.3);
+    padding: 1rem;
+    border-radius: 5px;
+}
+
+.plot-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.plot-header h4 {
+    margin: 0;
+    color: #ffd700;
+}
+
+.download-btn {
+    color: #ccc;
+    text-decoration: none;
+    font-size: 1.1em;
+    transition: color 0.3s ease;
+}
+
+.download-btn:hover {
+    color: #ffd700;
+}
+
+.plot-card img {
     max-width: 100%;
     height: auto;
-    background: #fff;
-    padding: 10px;
-    border-radius: 5px;
-    margin-top: 10px;
 }

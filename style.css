@@ -5,8 +5,13 @@ html {
 body {
     font-family: Arial, sans-serif;
     background-color: #000; /* Fallback for when video is loading */
+    color: #fff; /* Set default text color */
     margin: 0;
     padding: 0;
+    /* Flex properties to create a sticky footer layout */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 .video-background-container {
@@ -158,6 +163,21 @@ main {
     color: #fff;
 }
 
+/* New style for sub-pages to override the 100vh margin */
+.content-main {
+    margin: 0; /* <-- THIS IS THE FIX: Reset the 100vh margin */
+    padding: 80px 20px 20px 20px; /* Add padding for spacing */
+    background: transparent;
+    max-width: none;
+    border-radius: 0;
+    box-shadow: none;
+    color: #fff;
+    /* Add flex properties to center the content */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1; /* Allow this element to grow and push the footer down */
+}
 /* --- Diagonal Section Styles --- */
 main > section {
     position: relative;

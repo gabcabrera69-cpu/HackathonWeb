@@ -1,19 +1,22 @@
-const stepsDiv = document.getElementById("steps");
-const trainSection = document.getElementById("trainSection");
+const preprocessingResultsDiv = document.getElementById("preprocessing-results");
+const trainingResultsDiv = document.getElementById("training-results");
+const resultsContainer = document.getElementById("results-container");
+const trainControlsSection = document.getElementById("trainControlsSection");
 const trainBtn = document.getElementById("trainBtn");
 const modelSelect = document.getElementById("modelSelect");
 const xgbParamsDiv = document.getElementById("xgbParams");
 
 modelSelect.addEventListener("change", () => {
-  xgbParamsDiv.style.display = modelSelect.value === "xgb" ? "block" : "none";
+  xgbParamsDiv.style.display = modelSelect.value === "xgb" ? "flex" : "none";
 });
 
 // Helper functions
 function addStep(message, isLoading = false) {
+  resultsContainer.style.display = "block";
   const step = document.createElement("div");
   step.className = "step";
   step.innerHTML = isLoading ? `<span class="loading"></span>${message}` : message;
-  stepsDiv.appendChild(step);
+  preprocessingResultsDiv.appendChild(step);
   return step;
 }
 
@@ -27,7 +30,8 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
   const file = fileInput.files[0];
   if (!file) return alert("Please choose a file first.");
 
-  stepsDiv.innerHTML = "";
+  preprocessingResultsDiv.innerHTML = "";
+  trainingResultsDiv.innerHTML = ""; // Clear old training results
   const step1 = addStep("Uploading and processing dataset...", true);
 
   let formData = new FormData();
@@ -50,7 +54,7 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
     updateStep(step1, "✅ Dataset processed successfully!");
 
     // Show training section after successful upload
-    trainSection.style.display = "block";
+    trainControlsSection.style.display = "block";
 
     // Step 2: Missing values
     const step2 = addStep("Checking for missing values...");
@@ -136,10 +140,10 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
 // Train model
 trainBtn.addEventListener("click", async () => {
   const model = document.getElementById("modelSelect").value;
-  const metricsDiv = document.getElementById("metrics");
-  const plotsDiv = document.getElementById("plots");
-  metricsDiv.innerHTML = "";
-  plotsDiv.innerHTML = "";
+  trainingResultsDiv.innerHTML = ""; // Clear previous results
+  trainingResultsDiv.style.display = "block";
+
+  const step = addStep("Training model...", true);
 
   // Collect XGB hyperparameters
   const n_estimators = parseInt(document.getElementById("nEstimators").value) || 100;
@@ -147,8 +151,6 @@ trainBtn.addEventListener("click", async () => {
   const learning_rate = parseFloat(document.getElementById("learningRate").value) || 0.1;
 
   const hyperparams = { n_estimators, max_depth, learning_rate };
-
-  const step = addStep("Training model...", true);
 
   try {
     const response = await fetch("https://orbital-horizon-backend.onrender.com/train", {
@@ -163,38 +165,64 @@ trainBtn.addEventListener("click", async () => {
       return;
     }
 
-    updateStep(step, `✅ Model trained! Accuracy: ${(result.accuracy*100).toFixed(2)}%`);
-    metricsDiv.innerHTML = `<p>Accuracy: ${(result.accuracy*100).toFixed(2)}%</p>`;
-    if(result.auc_score) metricsDiv.innerHTML += `<p>ROC AUC: ${result.auc_score.toFixed(3)}</p>`;
+    // Remove the "Training..." step from the preprocessing area
+    step.remove();
+
+    let trainingHTML = `<div class="step">✅ Model trained successfully!</div>`;
+
+    // 🔹 Metrics
+    trainingHTML += `<div class="metrics-grid">`;
+    trainingHTML += `<div class="metric-card"><h4>Accuracy</h4><p>${(result.accuracy*100).toFixed(2)}%</p></div>`;
+    if(result.auc_score) {
+      trainingHTML += `<div class="metric-card"><h4>ROC AUC Score</h4><p>${result.auc_score.toFixed(3)}</p></div>`;
+    }
+    trainingHTML += `</div>`;
+
+    // 🔹 Plots
+    trainingHTML += `<div class="plots-grid">`;
 
     // 🔹 Confusion Matrix
-    plotsDiv.innerHTML += "<h4>Confusion Matrix</h4>";
-    const cmImg = document.createElement("img");
-    cmImg.src = "data:image/png;base64," + result.confusion_matrix_plot;
-    cmImg.style.maxWidth = "400px";
-    plotsDiv.appendChild(cmImg);
+    const cm_src = `data:image/png;base64,${result.confusion_matrix_plot}`;
+    trainingHTML += `<div class="plot-card">
+                        <div class="plot-header">
+                            <h4>Confusion Matrix</h4>
+                            <a href="${cm_src}" download="confusion_matrix.png" class="download-btn" title="Download Plot"><i class="fas fa-download"></i></a>
+                        </div>
+                        <img src="${cm_src}" alt="Confusion Matrix">
+                     </div>`;
 
     // 🔹 ROC Curve (if available)
     if(result.roc_plot){
-      plotsDiv.innerHTML += "<h4>ROC Curve</h4>";
-      const rocImg = document.createElement("img");
-      rocImg.src = "data:image/png;base64," + result.roc_plot;
-      rocImg.style.maxWidth = "400px";
-      plotsDiv.appendChild(rocImg);
+      const roc_src = `data:image/png;base64,${result.roc_plot}`;
+      trainingHTML += `<div class="plot-card">
+                            <div class="plot-header">
+                                <h4>ROC Curve</h4>
+                                <a href="${roc_src}" download="roc_curve.png" class="download-btn" title="Download Plot"><i class="fas fa-download"></i></a>
+                            </div>
+                            <img src="${roc_src}" alt="ROC Curve">
+                         </div>`;
     }
 
     // 🔹 Accuracy Plot (Training History)
     if(result.accuracy_plot && result.accuracy_plot !== "null"){
-      plotsDiv.innerHTML += "<h4>Training History</h4>";
-      const accImg = document.createElement("img");
-      accImg.src = "data:image/png;base64," + result.accuracy_plot;
-      accImg.style.maxWidth = "400px";
-      plotsDiv.appendChild(accImg);
+      const acc_src = `data:image/png;base64,${result.accuracy_plot}`;
+      trainingHTML += `<div class="plot-card">
+                            <div class="plot-header">
+                                <h4>Training History</h4>
+                                <a href="${acc_src}" download="training_history.png" class="download-btn" title="Download Plot"><i class="fas fa-download"></i></a>
+                            </div>
+                            <img src="${acc_src}" alt="Training History">
+                         </div>`;
     } else {
-      plotsDiv.innerHTML += "<p><i>No training history available for this model.</i></p>";
+      trainingHTML += `<div class="plot-card"><div class="plot-header"><h4>Training History</h4></div><p><i>No training history plot available for this model.</i></p></div>`;
     }
     
+    trainingHTML += `</div>`; // end plots-grid
+
+    trainingResultsDiv.innerHTML = trainingHTML;
+
   } catch(err){
-    updateStep(step, "❌ Training error: " + err.message);
+    // If training fails, update the step in the preprocessing area
+    updateStep(step, "❌ Training Error: " + err.message);
   }
 });
