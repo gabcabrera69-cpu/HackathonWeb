@@ -6,6 +6,8 @@ const trainBtn = document.getElementById("trainBtn");
 const modelSelect = document.getElementById("modelSelect");
 const predictBtn = document.getElementById("predictBtn");
 const downloadPredictionsBtn = document.getElementById("downloadPredictionsBtn");
+const fileInput = document.getElementById("fileInput");
+const fileNameSpan = document.getElementById("fileName");
 const xgbParamsDiv = document.getElementById("xgbParams");
 
 modelSelect.addEventListener("change", () => {
@@ -26,9 +28,20 @@ function updateStep(stepElement, newMessage, extraContent = "") {
   stepElement.innerHTML = newMessage + extraContent;
 }
 
+// Update filename display and enable upload button
+fileInput.addEventListener("change", () => {
+  const uploadBtn = document.getElementById("uploadBtn");
+  if (fileInput.files.length > 0) {
+    fileNameSpan.textContent = fileInput.files[0].name;
+    uploadBtn.disabled = false;
+  } else {
+    fileNameSpan.textContent = "No file chosen";
+    uploadBtn.disabled = true;
+  }
+});
+
 // Upload CSV and process dataset
 document.getElementById("uploadBtn").addEventListener("click", async () => {
-  const fileInput = document.getElementById("fileInput");
   const file = fileInput.files[0];
   if (!file) return alert("Please choose a file first.");
 

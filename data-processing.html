@@ -33,8 +33,12 @@
 
             <!-- === CONTROL PANELS === -->
             <div id="uploadSection" class="control-panel">
-              <input type="file" id="fileInput" accept=".csv">
-              <button id="uploadBtn">Upload & Process</button>
+              <label for="fileInput" class="file-upload-label">
+                <i class="fas fa-file-csv"></i> Choose CSV File
+              </label>
+              <input type="file" id="fileInput" accept=".csv" style="display: none;">
+              <span id="fileName">No file chosen</span>
+              <button id="uploadBtn" disabled>Upload & Process</button>
             </div>
 
             <div id="trainControlsSection" class="control-panel" style="display:none;">
