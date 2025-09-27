@@ -501,7 +501,7 @@ footer {
 
 /* Image Grid for Team Members */
 .team-section {
-    /* Styles are now handled by the generic section rules */
+    box-shadow: none;
 }
 
 .team-grid {

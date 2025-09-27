@@ -1,61 +1,49 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_file
 from flask_cors import CORS
 import pandas as pd
 import numpy as np
-import io, re, base64
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+import io, base64, joblib
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, confusion_matrix, roc_auc_score, roc_curve
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
-import xgboost
 from xgboost import XGBClassifier
-import lightgbm as lgb
 from lightgbm import LGBMClassifier, log_evaluation, early_stopping
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 # Temporary storage for last uploaded data
+global global_features
+global global_target
+global global_df_core
+
 global_features = None
 global_target = None
+global_df_core = None
 
-# 🔹 Normalize column names (lowercase + strip non-alphanumeric)
-def normalize(col):
-    return re.sub(r'[^a-z0-9]', '', col.lower())
+def extract_features_and_target(df, feature_keywords, target_keywords):
+    # Filter features to only those present in df
+    feature_cols = [col for col in feature_keywords if col in df.columns]
 
-# 🔹 Find candidate columns based on keyword lists
-def find_columns(df, keywords):
-    normalized = {normalize(c): c for c in df.columns}
-    matches = [
-        orig for norm, orig in normalized.items()
-        if any(k in norm for k in keywords)
-    ]
-    return matches
+    # Detect target column
+    target_col = next((col for col in target_keywords if col in df.columns), None)
+    if target_col is None:
+        raise ValueError("No valid target column found in this dataset.")
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+    # Subset dataframe
+    df_core = df[feature_cols + [target_col]].copy()
 
-@app.route("/upload", methods=["POST"])
-def upload_csv():
-    global global_features, global_target
+    return df_core, feature_cols, target_col
 
-    file = request.files.get("file")
-    if not file:
-        return jsonify({"error": "No file uploaded"}), 400
-
-    raw_data = file.read().decode("utf-8", errors="ignore")
-
-    # 🔹 Possible target column names
-    target_keywords = ["koi_disposition", "tfopwg_disp", "disposition"]
-
-    # 🔹 Try to detect the header dynamically
+def detect_header(raw_data, target_keywords, max_skip=300):
     df = None
     header_line = None
-    for skip in range(300):
+
+    for skip in range(max_skip):
         try:
             candidate = pd.read_csv(io.StringIO(raw_data), skiprows=skip, nrows=5)
             if any(col.lower() in [t.lower() for t in target_keywords] for col in candidate.columns):
@@ -66,107 +54,149 @@ def upload_csv():
             continue
 
     if df is None:
-        return jsonify({"error": "Could not detect valid dataset header"}), 400
+        return None, None, "Could not detect valid dataset header"
 
-    # 🔹 Count missing values
-    missing_counts = df.isnull().sum().to_dict()
+    return df, header_line, None
 
-    # 🔹 DEBUG: print available columns
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/upload", methods=["POST"])
+def upload_csv():
+    global global_features, global_target, global_df_core
+
+    file = request.files.get("file")
+    if not file:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    raw_data = file.read().decode("utf-8", errors="ignore")
+
+    # Possible target column names
+    target_keywords = ["koi_disposition", "tfopwg_disp", "disposition"]
+
+    df, header_line, error = detect_header(raw_data, target_keywords)
+    if error:
+        return jsonify({"error": error}), 400
+
+    # DEBUG: print available columns
     print("🔍 Available columns:", list(df.columns))
 
-    # 🔹 Define search keywords for temperature & radius
-    temp_keywords = ["temp", "teq", "eqt", "teff", "steff"]
-    rad_keywords  = ["prad", "rade", "radj", "srad", "rad"]
+    # Define search keywords for important features
+    feature_keywords = [
+        # kepler features
+        'koi_prad', 'koi_period', 'koi_depth', 'koi_duration',
+        'koi_teq', 'koi_insol',
+        'koi_steff', 'koi_srad',
+        # 'koi_score', 'koi_model_snr',
 
-    # 🔹 Detect candidate columns
-    temp_cols = find_columns(df, temp_keywords)
-    rad_cols  = find_columns(df, rad_keywords)
+        # k2 features
+        'pl_rade', 'pl_orbper', 'pl_trandep', 'pl_trandur',
+        'pl_eqt', 'pl_insol',
+        'st_teff', 'st_rad', # 'st_mass',
+        # 'rv_flag', 'tran_flag',
 
-    # 🔹 Drop candidate columns that are completely empty (all NaN)
-    threshold = 300 
-    temp_cols = [c for c in temp_cols if df[c].notna().sum() > threshold]
-    rad_cols  = [c for c in rad_cols  if df[c].notna().sum() > threshold]
+        # tess features
+        'pl_rade', 'pl_orbper', 'pl_trandurh',
+        'pl_eqt', 'pl_insol',
+        # 'st_teff', 'st_rad', 'st_tmag'
+    ]
 
-    # 🔹 Detect target column dynamically
-    normalized_map = {normalize(c): c for c in df.columns}
-    target_col = None
-    for norm_col, orig_col in normalized_map.items():
-        for key in target_keywords:
-            if normalize(key) in norm_col:
-                target_col = orig_col
-                break
-        if target_col:
-            break
+    feature_keywords = list(dict.fromkeys(feature_keywords))
 
-    extracted = []
-    feature_engineered = []
-    targets_raw = []
-    targets_numeric = []
+    # Encode target labels uniformly
+    target_map = {
+        # NOT A PLANET
+        'FALSE POSITIVE': 0,
+        'REFUTED': 0,
+        'FP': 0,
+        'FA': 0,
 
-    if temp_cols and rad_cols and target_col:
-        # Drop rows with NaN in any relevant column
-        subset_cols = temp_cols + rad_cols + [target_col]
-        cleaned = df.dropna(subset=subset_cols)[subset_cols]
+        # CANDIDATE
+        'CANDIDATE': 1,
+        'PC': 1,
+        'CP': 1,
+        'APC': 1,
 
-        # 🔹 Choose specific columns dynamically
-        planet_rad_col = next((c for c in rad_cols if "prad" in c.lower()), None)
-        stellar_rad_col = next((c for c in rad_cols if "srad" in c.lower()), None)
-        stellar_temp_col = next((c for c in temp_cols if "steff" in c.lower()), None)
-        eq_temp_col = next((c for c in temp_cols if "teq" in c.lower()), None)
+        # PLANET
+        'CONFIRMED': 2,
+        'KP': 2
+    }
 
-        # 🔹 Start with base features
-        features = cleaned[temp_cols + rad_cols].copy()
+    # Extract features and target
+    df_core, feature_cols, target_col = extract_features_and_target(df, feature_keywords, target_keywords)
 
-        # ---- Feature engineering ----
+    # Rename features for uniformity
+    rename_map = {
+        # Kepler
+        'koi_prad':'pl_rade', 'koi_period':'pl_orbper',
+        'koi_depth':'pl_trandep', 'koi_duration':'pl_trandur',
+        'koi_teq':'pl_eqt', 'koi_insol':'pl_insol',
+        'koi_steff':'st_teff', 'koi_srad':'st_rad',
+        'koi_score':'score', 'koi_model_snr':'snr',
+        # TESS
+        'pl_trandurh':'pl_trandur',
+        'st_tmag':'st_mag'
+    }
 
-        # Planet radius-based features
-        if planet_rad_col:
-            features["planet_radius_sq"] = cleaned[planet_rad_col] ** 2
+    # Filter to only rename columns that exist in the current DataFrame
+    rename_map = {k: v for k, v in rename_map.items() if k in df_core.columns}
 
-            if stellar_temp_col:
-                features["stellar_temp_x_planet_rad"] = cleaned[stellar_temp_col] * cleaned[planet_rad_col]
-                features["stellar_temp_div_planet_rad"] = cleaned[stellar_temp_col] / cleaned[planet_rad_col].replace(0, 1)
+    df_core.rename(columns=rename_map, inplace=True)
 
-            elif eq_temp_col:
-                features["eq_temp_x_planet_rad"] = cleaned[eq_temp_col] * cleaned[planet_rad_col]
-                features["eq_temp_div_planet_rad"] = cleaned[eq_temp_col] / cleaned[planet_rad_col].replace(0, 1)
+    # Map target to numeric
+    df_core['target'] = df_core[target_col].map(target_map)
+    df_core = df_core[df_core['target'].notna()]
 
-        # Stellar radius-based features
-        if stellar_rad_col:
-            features["stellar_radius_sq"] = cleaned[stellar_rad_col] ** 2
+    df_core = df_core.drop(columns=[target_col])
 
-            if stellar_temp_col:
-                features["stellar_temp_x_stellar_rad"] = cleaned[stellar_temp_col] * cleaned[stellar_rad_col]
-                features["stellar_temp_div_stellar_rad"] = cleaned[stellar_temp_col] / cleaned[stellar_rad_col].replace(0, 1)
+    df_core['target'] = df_core['target'].astype(int)
 
-            elif eq_temp_col:
-                features["eq_temp_x_stellar_rad"] = cleaned[eq_temp_col] * cleaned[stellar_rad_col]
-                features["eq_temp_div_stellar_rad"] = cleaned[eq_temp_col] / cleaned[stellar_rad_col].replace(0, 1)
+    # Fill missing numeric values with median
+    numeric_cols = df_core.select_dtypes(include='number').columns
+    for col in numeric_cols:
+        df_core[col] = df_core[col].fillna(df_core[col].median())
 
-        # Normalize
-        scaler = StandardScaler()
-        scaled_features = pd.DataFrame(
-            scaler.fit_transform(features),
-            columns=features.columns
-        )
+    # Normalize numeric features
+    scaler = MinMaxScaler()
+    feature_cols = list(df_core.columns.drop('target'))  # ensure it's a list
+    df_core[feature_cols] = scaler.fit_transform(df_core[feature_cols])
 
-        # Targets (numeric)
-        non_null_target = cleaned[target_col].astype(str)
-        le = LabelEncoder()
-        encoded_target = le.fit_transform(non_null_target)
+    # Define feature order
+    canonical_order = [
+        # Planetary features
+        'pl_rade', 'pl_orbper', 'pl_trandep', 'pl_trandur', 'pl_eqt', 'pl_insol',
 
-        # Store globals
-        global_features = scaled_features
-        global_target = encoded_target 
+        # Stellar features
+        'st_teff', 'st_rad', 'st_mass', 'st_mag',
 
-        # For frontend preview
-        extracted = cleaned[temp_cols + rad_cols].head(5).to_dict(orient="records")
-        
-        engineered_cols = [c for c in features.columns if c not in (temp_cols + rad_cols)]
-        feature_engineered = scaled_features[engineered_cols].head(5).to_dict(orient="records")
-        
-        targets_raw = non_null_target.head(5).tolist()
-        targets_numeric = encoded_target[:10].tolist()
+        # Other features
+        'score', 'snr', 'rv_flag', 'tran_flag'
+    ]
+
+    # Keep only features that exist in df_core
+    canonical_order = [col for col in canonical_order if col in df_core.columns]
+
+    # Reorder columns
+    df_core = df_core[canonical_order + ['target']]
+
+    # Prepare JSON-serializable data
+    extracted_raw = df_core[feature_cols].head(5).to_dict(orient="records") if len(feature_cols) > 0 else []
+    extracted_normalized = df_core[feature_cols].head(5).to_dict(orient="records") if len(feature_cols) > 0 else []
+    targets_raw = df_core['target'].head(5).tolist()
+    targets_numeric = df_core['target'].head(5).tolist()
+
+    # Missing counts
+    missing_counts = df_core.isnull().sum().to_dict()
+
+    # Optionally identify temperature/radius columns if they exist
+    temp_cols = [c for c in feature_cols if 'teff' in c.lower()]
+    rad_cols = [c for c in feature_cols if 'rad' in c.lower()]
+
+    # Store globally for training later
+    global_features = feature_cols
+    global_target = 'target'
+    global_df_core = df_core.copy()
 
     return jsonify({
         "header_line": header_line,
@@ -174,27 +204,48 @@ def upload_csv():
         "missing_counts": missing_counts,
         "temperature_columns": temp_cols,
         "radius_columns": rad_cols,
-        "extracted_raw": extracted,
-        "extracted_normalized": feature_engineered,
+        "extracted_raw": extracted_raw,
+        "extracted_normalized": extracted_normalized,
         "targets_raw": targets_raw,
         "targets_numeric": targets_numeric
     })
 
+@app.route("/save", methods=["GET"])
+def save_processed_data():
+    global global_df_core
+    if global_df_core is None:
+        return jsonify({"error": "No dataset uploaded yet."}), 400
+
+    # Save DataFrame to a BytesIO buffer
+    buf = io.BytesIO()
+    global_df_core.to_csv(buf, index=False)
+    buf.seek(0)
+    
+    return send_file(
+        buf,
+        mimetype="text/csv",
+        as_attachment=True,
+        download_name="processed_data.csv"
+    )
+
 @app.route("/train", methods=["POST"])
 def train_model():
-    global global_features, global_target
-    if global_features is None or global_target is None:
+    global global_df_core
+    if global_df_core is None:
         return jsonify({"error": "No dataset uploaded yet."}), 400
 
     data = request.json
     model_choice = data.get("model")
     hyperparams = data.get("hyperparams", {})
 
+    X = global_df_core.drop(columns=['target'])
+    y = global_df_core['target']
+
     if model_choice not in ["xgb", "lgbm"]:
         return jsonify({"error": "Invalid model choice."}), 400
 
     X_train, X_test, y_train, y_test = train_test_split(
-        global_features, global_target, test_size=0.2, random_state=42
+        X, y, test_size=0.2, random_state=42
     )
 
     num_classes = len(np.unique(y_train))
@@ -323,6 +374,32 @@ def train_model():
         "auc_score": auc_score,
         "accuracy_plot": acc_plot
     })
+
+@app.route("/predict", methods=["POST"])
+def predict_with_pretrained():
+    global global_df_core
+    if global_df_core is None:
+        return jsonify({"error": "No dataset uploaded yet."}), 400
+    
+    try:
+        # Load pretrained model
+        model = joblib.load("xgb_final_model_v2.pkl")
+
+        # Separate features (exclude target if present)
+        if "target" in global_df_core.columns:
+            X = global_df_core.drop(columns=["target"])
+        else:
+            X = global_df_core.copy()
+
+        preds = model.predict(X)
+
+        return jsonify({
+            "predictions": preds.tolist(),
+            "count": len(preds)
+        })
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)

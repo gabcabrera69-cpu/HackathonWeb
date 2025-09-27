@@ -1,82 +1,68 @@
-/* --- Data Processing Page Specific Styles --- */
+ /* --- Data Processing Page Specific Styles --- */
 
 .processing-section {
-    width: 90%;
     max-width: 1200px;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(10px);
+    margin: 0 auto;
     padding: 2rem;
+    background: rgba(0,0,0,0.7);
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    color: #fff;
-    margin-bottom: 2rem;
+    backdrop-filter: blur(10px);
 }
 
 .control-panel {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 8px;
-    margin-bottom: 2rem;
-    text-align: center;
-}
-
-#uploadSection, .train-controls {
+    padding: 20px;
+    margin-bottom: 20px;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
     flex-wrap: wrap;
-}
-
-#trainSection {
-    display: none; /* Initially hidden */
-    flex-direction: column;
     gap: 20px;
+    align-items: center;
+    justify-content: center;
 }
 
-#xgbParams {
-    display: none; /* Initially hidden */
-    margin-top: 10px;
-    padding: 10px;
-    border-top: 1px solid rgba(255,255,255,0.2);
-}
-
-input[type="file"] {
-    color: #ccc;
-}
-
-input[type="file"]::file-selector-button {
-    background: #5a5a7a;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 20px;
-    cursor: pointer;
+#uploadSection input[type="file"] {
     color: #fff;
-    font-weight: bold;
-    transition: background 0.3s ease;
-    margin-right: 10px;
 }
 
-input[type="file"]::file-selector-button:hover {
-    background: #7a7a9a;
-}
-
-button {
-    background: #ffd700;
-    border: none;
+#uploadSection button, #trainBtn {
+    background: rgba(255, 215, 0, 0.7); /* Gold with transparency */
+    border: 1px solid rgba(255, 215, 0, 0.9);
     padding: 10px 20px;
     border-radius: 20px;
     cursor: pointer;
     color: #1a1a1a;
     font-weight: bold;
-    transition: background 0.3s ease;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
 }
 
-button:hover {
-    background: #ffec80;
+#uploadSection button:hover, #trainBtn:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: #fff;
+    color: #000;
 }
 
-select, input[type="number"] {
+.train-controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.hyperparam-group {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    border-left: 2px solid rgba(255, 255, 255, 0.3);
+    padding-left: 20px;
+}
+
+.hyperparam-group label, .train-controls label {
+    font-weight: bold;
+}
+
+.hyperparam-group input, .train-controls select {
     padding: 8px;
     border-radius: 5px;
     border: 1px solid #555;
@@ -84,129 +70,118 @@ select, input[type="number"] {
     color: #e0e0e0;
 }
 
-/* --- Results Styling --- */
+/* --- Results Area --- */
 #results-container {
-    margin-top: 0; /* Remove the top margin to pull results up */
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-#preprocessing-results, #training-results {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
 }
 
 .step {
-    background: rgba(0,0,0,0.3);
-    padding: 1rem;
-    border-radius: 5px;
-    border-left: 3px solid #ffd700;
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 4px solid #ffd700;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 0 4px 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
-.step h4 {
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
-    color: #ffd700;
+
+.step table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.step th, .step td {
+    border: 1px solid #555;
+    padding: 8px;
+    text-align: left;
+}
+
+.step th {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.step pre {
+    background: #111;
+    padding: 10px;
+    border-radius: 4px;
+    white-space: pre-wrap;
+    word-break: break-all;
 }
 
 .loading {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid #fff;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
     border-top-color: #ffd700;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin-right: 10px;
-    vertical-align: middle;
+    display: inline-block;
 }
 
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
 
-/* --- Table Styles --- */
-.step table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-    font-size: 0.9em;
-}
-
-.step th, .step td {
-    padding: 8px 12px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    text-align: left;
-}
-
-.step th {
-    background-color: rgba(255, 215, 0, 0.2);
-}
-
-.step tr:nth-child(even) {
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
 /* --- Training Results --- */
 .metrics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin: 15px 0;
 }
 
 .metric-card {
-    background: rgba(0,0,0,0.3);
-    padding: 1.5rem;
-    border-radius: 5px;
+    background: #2a2a2a;
+    padding: 20px;
+    border-radius: 8px;
     text-align: center;
-    border-left: 3px solid #4CAF50; /* Green for success metrics */
+    border-top: 3px solid #ffd700;
 }
 
 .metric-card h4 {
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 10px;
     color: #ccc;
-    font-size: 1em;
-    text-transform: uppercase;
 }
 
 .metric-card p {
     margin: 0;
-    font-size: 2em;
+    font-size: 1.8em;
     font-weight: bold;
-    color: #fff;
 }
 
 .plots-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
 }
 
 .plot-card {
-    background: rgba(0,0,0,0.3);
-    padding: 1rem;
-    border-radius: 5px;
+    background: #2a2a2a;
+    padding: 15px;
+    border-radius: 8px;
 }
 
 .plot-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: 10px;
 }
 
 .plot-header h4 {
     margin: 0;
-    color: #ffd700;
 }
 
 .download-btn {
     color: #ccc;
     text-decoration: none;
-    font-size: 1.1em;
-    transition: color 0.3s ease;
+    font-size: 1.2em;
+    transition: color 0.3s;
 }
 
 .download-btn:hover {
@@ -214,6 +189,20 @@ select, input[type="number"] {
 }
 
 .plot-card img {
-    max-width: 100%;
+    width: 100%;
     height: auto;
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    .control-panel, .hyperparam-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .hyperparam-group {
+        border-left: none;
+        padding-left: 0;
+        border-top: 2px solid rgba(255, 255, 255, 0.3);
+        padding-top: 20px;
+    }
 }

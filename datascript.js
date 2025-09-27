@@ -1,9 +1,10 @@
 const preprocessingResultsDiv = document.getElementById("preprocessing-results");
 const trainingResultsDiv = document.getElementById("training-results");
 const resultsContainer = document.getElementById("results-container");
-const trainControlsSection = document.getElementById("trainControlsSection");
+const trainControlsSection = document.getElementById("trainControlsSection"); // This ID is in the new HTML
 const trainBtn = document.getElementById("trainBtn");
 const modelSelect = document.getElementById("modelSelect");
+const predictBtn = document.getElementById("predictBtn");
 const xgbParamsDiv = document.getElementById("xgbParams");
 
 modelSelect.addEventListener("change", () => {
@@ -15,7 +16,7 @@ function addStep(message, isLoading = false) {
   resultsContainer.style.display = "block";
   const step = document.createElement("div");
   step.className = "step";
-  step.innerHTML = isLoading ? `<span class="loading"></span>${message}` : message;
+  step.innerHTML = isLoading ? `<span class="loading"></span> ${message}` : message;
   preprocessingResultsDiv.appendChild(step);
   return step;
 }
@@ -30,7 +31,7 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
   const file = fileInput.files[0];
   if (!file) return alert("Please choose a file first.");
 
-  preprocessingResultsDiv.innerHTML = "";
+  preprocessingResultsDiv.innerHTML = ""; // Clear old preprocessing results
   trainingResultsDiv.innerHTML = ""; // Clear old training results
   const step1 = addStep("Uploading and processing dataset...", true);
 
@@ -146,7 +147,7 @@ trainBtn.addEventListener("click", async () => {
   const step = addStep("Training model...", true);
 
   // Collect XGB hyperparameters
-  const n_estimators = parseInt(document.getElementById("nEstimators").value) || 100;
+  const n_estimators = parseInt(document.getElementById("nEstimators").value) || 100; // Corrected ID
   const max_depth = parseInt(document.getElementById("maxDepth").value) || 3;
   const learning_rate = parseFloat(document.getElementById("learningRate").value) || 0.1;
 
@@ -172,7 +173,7 @@ trainBtn.addEventListener("click", async () => {
 
     // 🔹 Metrics
     trainingHTML += `<div class="metrics-grid">`;
-    trainingHTML += `<div class="metric-card"><h4>Accuracy</h4><p>${(result.accuracy*100).toFixed(2)}%</p></div>`;
+    trainingHTML += `<div class="metric-card"><h4>Accuracy</h4><p>${(result.accuracy * 100).toFixed(2)}%</p></div>`;
     if(result.auc_score) {
       trainingHTML += `<div class="metric-card"><h4>ROC AUC Score</h4><p>${result.auc_score.toFixed(3)}</p></div>`;
     }
@@ -216,7 +217,7 @@ trainBtn.addEventListener("click", async () => {
     } else {
       trainingHTML += `<div class="plot-card"><div class="plot-header"><h4>Training History</h4></div><p><i>No training history plot available for this model.</i></p></div>`;
     }
-    
+
     trainingHTML += `</div>`; // end plots-grid
 
     trainingResultsDiv.innerHTML = trainingHTML;
@@ -224,5 +225,65 @@ trainBtn.addEventListener("click", async () => {
   } catch(err){
     // If training fails, update the step in the preprocessing area
     updateStep(step, "❌ Training Error: " + err.message);
+  }
+});
+
+// Predict with pre-trained model
+predictBtn.addEventListener("click", async () => {
+  trainingResultsDiv.innerHTML = ""; // Clear previous results
+  trainingResultsDiv.style.display = "block";
+
+  const step = addStep("Running prediction with pre-trained model...", true);
+
+  try {
+    const response = await fetch("https://orbital-horizon-backend.onrender.com/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      const errorResult = await response.json();
+      throw new Error(errorResult.error || `HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    // Remove the "Predicting..." step
+    step.remove();
+
+    let predictionHTML = `<div class="step">✅ Prediction complete! Found ${result.count} potential objects.</div>`;
+
+    // Filter for confirmed planets (prediction == 2)
+    const confirmedPlanets = result.predictions.reduce((acc, pred, index) => {
+      if (pred === 2) {
+        acc.push({ index: index + 1, prediction: pred }); // Use 1-based index for display
+      }
+      return acc;
+    }, []);
+
+    predictionHTML += `<div class="metrics-grid">
+                        <div class="metric-card">
+                            <h4>Confirmed Planets Found</h4>
+                            <p>${confirmedPlanets.length}</p>
+                        </div>
+                       </div>`;
+
+    if (confirmedPlanets.length > 0) {
+      predictionHTML += `<div class="plot-card">
+                            <div class="plot-header"><h4>Discovered Planets (Prediction = 2)</h4></div>`;
+      let tableHTML = "<table><tr><th>Original Row #</th><th>Prediction</th></tr>";
+      confirmedPlanets.forEach(planet => {
+        tableHTML += `<tr><td>${planet.index}</td><td>Confirmed Planet</td></tr>`;
+      });
+      tableHTML += "</table>";
+      predictionHTML += tableHTML;
+      predictionHTML += `</div>`;
+    }
+
+    trainingResultsDiv.innerHTML = predictionHTML;
+
+  } catch (err) {
+    console.error("❌ Prediction error:", err);
+    updateStep(step, "❌ Prediction Error: " + err.message);
   }
 });
