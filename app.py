@@ -262,7 +262,7 @@ def train_model():
     model_choice = data.get("model")
     hyperparams = data.get("hyperparams", {})
 
-    X = global_df_core.drop(columns=['target'])
+    X = global_df_core[global_features] # Use the curated feature list
     y = global_df_core['target']
 
     if model_choice not in ["xgb", "lgbm"]:
@@ -409,11 +409,7 @@ def predict_with_pretrained():
         # Load pretrained model
         model = joblib.load("xgb_final_model_v2.pkl")
 
-        # Separate features (exclude target if present)
-        if "target" in global_df_core.columns: # This should be true
-            X = global_df_core.drop(columns=["target"])
-        else:
-            X = global_df_core.copy()
+        X = global_df_core[global_features] # Use the curated feature list to exclude non-numeric IDs
 
         # Use the unscaled dataframe to get the original values for visualization
         raw_data_for_prediction = global_df_unscaled.to_dict(orient='records')
