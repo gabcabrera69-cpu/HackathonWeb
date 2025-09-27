@@ -1,7 +1,7 @@
 // --- Website Navigation Logic (for index.html) ---
-const isHomePage = document.querySelector('#about');
+const isAboutPage = document.querySelector('nav.side-nav');
 
-if (isHomePage) {
+if (isAboutPage) {
     const sections = document.querySelectorAll('main [id]');
     // On mobile, only the top-nav is visible. On desktop, both are.
     const navLinks = document.querySelectorAll('.side-nav .nav-link');
@@ -70,6 +70,9 @@ if (heroSection) {
     topNav.classList.add('top-nav--visible');
     if (chatbotContainer) {
         chatbotContainer.classList.add('chatbot-container--visible');
+    }
+    if (sideNav) { 
+        sideNav.classList.add('side-nav--visible');
     }
 }
 

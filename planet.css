@@ -44,13 +44,12 @@ footer {
     align-items: center;
     gap: 20px;
     box-sizing: border-box;
-    /* Override the dark overlay from style.css */
     box-shadow: none;
 }
 
 #planet-container {
-    width: 90vw; /* Take more width */
-    height: 75vh; /* Adjust height */
+    width: 90vw;
+    height: 75vh;
     max-width: 1400px;
     max-height: 700px;
     position: relative;

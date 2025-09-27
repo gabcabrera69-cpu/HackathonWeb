@@ -49,8 +49,8 @@ body {
 
 .logo-container--scrolled {
     top: 15px;
-    left: 20px;
-    max-width: 400px; /* Final small size */
+    left: 15px;
+    max-width: 300px; /* Final small size */
     transform: translate(0, 0);
 }
 
@@ -161,23 +161,99 @@ main {
     border-radius: 0;
     box-shadow: none;
     color: #fff;
+    position: relative;
 }
 
 /* New style for sub-pages to override the 100vh margin */
 .content-main {
-    margin: 0; /* <-- THIS IS THE FIX: Reset the 100vh margin */
-    padding: 80px 20px 20px 20px; /* Add padding for spacing */
+    margin: 0;
+    padding: 80px 0 0 0; /* Add top padding for nav bar, remove others */
     background: transparent;
     max-width: none;
     border-radius: 0;
     box-shadow: none;
     color: #fff;
-    /* Add flex properties to center the content */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    /* This container should allow its children (sections) to be full-width */
     flex-grow: 1; /* Allow this element to grow and push the footer down */
 }
+
+/* --- 3D Planet Navigation Container --- */
+#planet-nav-container {
+    width: 100vw;
+    height: 100vh; /* Make it fill the full viewport height */
+    margin: 0;
+    position: relative;
+}
+
+/* --- Planet Navigation Buttons --- */
+.planet-nav-btn {
+    position: fixed;
+    bottom: 30px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    transition: background 0.3s ease;
+}
+
+.planet-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+#nav-back-btn { left: 30px; }
+#nav-next-btn { right: 30px; }
+
+/* --- Planet Label --- */
+#planet-label {
+    position: absolute;
+    bottom: 110px; /* Position it above the navigation buttons */
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-size: 2.5rem;
+    font-weight: 300;
+    text-align: center;
+    z-index: 5; /* Below buttons but above canvas */
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+    pointer-events: none; /* Prevents it from blocking clicks on the canvas */
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+#planet-label.visible {
+    opacity: 1;
+}
+
+/* --- Planet Description --- */
+#planet-description {
+    position: absolute;
+    bottom: 80px; /* Position it below the label */
+    left: 50%;
+    transform: translateX(-50%);
+    color: #b0b0b0;
+    font-size: 1rem;
+    font-style: italic;
+    text-align: center;
+    z-index: 5;
+    max-width: 400px;
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+    pointer-events: none; /* Prevents it from blocking clicks */
+    line-height: 1.4;
+}
+
+#planet-description.visible {
+    opacity: 1;
+}
+
 /* --- Diagonal Section Styles --- */
 main > section {
     position: relative;
@@ -186,26 +262,50 @@ main > section {
     background-position: center center;
     background-repeat: no-repeat;
     background-attachment: fixed; /* This creates the parallax effect */
+    overflow: hidden; /* This is crucial for containing the absolute video */
     color: #fff;
     box-shadow: inset 0 0 0 1000px rgba(0,0,0,0.6);
 }
 
+/* New styles for the video backgrounds within sections */
+.section-video-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; 
+}
+
+.section-video-background video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 /* GIF backgrounds */
 #about {
-    background-image: url('https://i.pinimg.com/originals/ca/4d/23/ca4d2391455ade48053c0b6861842574.gif');
-    clip-path: polygon(0 5vw,100% 0, 100% calc(100% - 5vw), 0 100%);
+    clip-path: polygon(0 5vw, 100% 0, 100% calc(100% - 5vw), 0 100%);
 }
 
 #demo {
-    background-image: url('https://i.pinimg.com/originals/12/72/f7/1272f7e73de47c19e405c542fb9e4b69.gif');
-    clip-path: polygon(0 5vw,100% 0, 100% calc(100% - 5vw), 0 100%);
+    clip-path: polygon(0 5vw, 100% 0, 100% calc(100% - 5vw), 0 100%);
     margin-top: -5vw;
 }
 
 #team {
-    background-image: url('https://wallpapers-clan.com/wp-content/uploads/2024/03/starfall-night-sky-mountains-aesthetic-gif-preview-desktop-wallpaper.gif');
+    clip-path: polygon(0 5vw, 100% 0, 100% 100%, 0 100%);
+    margin-top: -5vw;
+}
+
+body:has(> main > #team.team-section) #team {
+    clip-path: none;
+    margin-top: 0;
+}
+
+#methodology {
     clip-path: polygon(0 5vw, 100% 0, 100% 100%, 0 100%); 
-    margin-top: -5vw; 
+    margin-top: -5vw;
 }
 
 .section-content {
@@ -214,6 +314,33 @@ main > section {
     padding: 2rem;
     background: rgba(0,0,0,0.5);
     border-radius: 8px;
+}
+
+/* Specific style for the data processing page content */
+.processing-section {
+    max-width: 1200px; /* Give it a comfortable max width */
+    margin: 0 auto; /* Center the section horizontally */
+    padding: 2rem;
+    background: rgba(0,0,0,0.5);
+    border-radius: 8px;
+}
+
+/* New layout for content within a section */
+.content-row {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start; /* Align items to the top */
+}
+
+/* Make the children of the row flexible */
+.content-row > .video-container {
+    flex: 1 1 50%; /* Take up half the space */
+}
+.content-row > .gallery-grid {
+    flex: 1 1 50%; /* Take up half the space */
+}
+.content-row > .team-grid {
+    flex: 1; /* Allow the team grid to take full width inside its row */
 }
 
 /* --- Fade-in Animation on Scroll --- */
@@ -388,30 +515,31 @@ footer {
 
 .team-member {
     background: rgba(0, 0, 0, 0.4);
-    padding: 30px;
+    height: 320px;
     border-radius: 10px;
-    text-align: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-    transition: transform 0.3s ease-in-out;
-}
-
-.team-member:hover {
-    transform: translateY(-10px); 
+    padding: 30px;
+    box-sizing: border-box;
+    text-align: center;
+    position: relative; /* Needed for positioning the details panel */
+    overflow: hidden; /* Hides the details panel when it's outside the card */
 }
 
 .team-member img {
     width: 150px;
     height: 150px;
     border-radius: 50%;
-    object-fit: cover; 
+    object-fit: cover;
     border: 3px solid #ffffff;
     margin-bottom: 20px;
+    transition: transform 0.4s ease-in-out;
 }
 
 .team-member h3 {
     color: #e0e0e0;
     font-size: 1.5em;
     margin: 0 0 5px;
+    transition: opacity 0.3s ease-in-out;
 }
 
 .team-member p {
@@ -419,8 +547,51 @@ footer {
     font-size: 1em;
     font-style: italic;
     margin: 0;
+    transition: opacity 0.3s ease-in-out;
 }
 
+.team-member-details {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    opacity: 0;
+    transform: translateY(50px); /* Start slightly below */
+    transition: opacity 0.4s 0.2s ease-out, transform 0.4s 0.2s ease-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Align content to the bottom */
+    text-align: left; /* Align text to the left */
+}
+
+.team-member-details h4 { font-size: 1.2em; margin: 0; color: #fff; }
+.team-member-details .info { font-size: 0.9em; margin: 5px 0 15px; color: #ccc; font-style: normal; }
+.team-member-details .quote {
+    font-size: 0.9em;
+    margin: 0;
+    font-style: italic;
+    color: #ffd700;
+    border-left: 2px solid #ffd700;
+    padding-left: 10px;
+}
+
+/* --- Hover State --- */
+.team-member:hover img {
+    transform: scale(0.85) translate(-80%, -25%);
+}
+
+.team-member:hover h3,
+.team-member:hover > p {
+    opacity: 0;
+}
+
+.team-member:hover .team-member-details {
+    opacity: 1;
+    transform: translateY(0);
+}
 
 /* ---- Side Navigation Styles ---- */
 .side-nav {
@@ -670,5 +841,27 @@ footer {
     .top-nav ul {
         gap: 10px; /* Reduce gap between items */
         justify-content: space-around; /* Distribute items evenly */
+    }
+
+    .content-row {
+        flex-direction: column; /* Stack items vertically on mobile */
+        align-items: center;
+    }
+
+    .planet-nav-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.5rem;
+    }
+
+    #planet-label {
+        bottom: 90px;
+        font-size: 1.8rem;
+    }
+
+    #planet-description {
+        bottom: 65px;
+        font-size: 0.9rem;
+        max-width: 80%;
     }
 }
