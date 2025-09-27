@@ -65,16 +65,37 @@ if (heroSection) {
     }
 
     window.addEventListener('scroll', toggleNavOnScroll);
-} else if (topNav) {
-    // For other pages, make the top nav visible by default.
-    topNav.classList.add('top-nav--visible');
-    if (chatbotContainer) {
-        chatbotContainer.classList.add('chatbot-container--visible');
-    }
-    if (sideNav) { 
-        sideNav.classList.add('side-nav--visible');
-    }
-}
+} else if (topNav) { // --- Logic for all other pages ---
+    let lastScrollTop = 0;
+
+    // Fade in the nav bar and other elements on page load
+    setTimeout(() => {
+        topNav.classList.add('top-nav--visible');
+        if (chatbotContainer) {
+            chatbotContainer.classList.add('chatbot-container--visible');
+        }
+        if (sideNav) { 
+            sideNav.classList.add('side-nav--visible');
+        }
+    }, 100); // Small delay to allow CSS transition
+
+    // Hide on scroll down, show on scroll up
+    window.addEventListener('scroll', function() {
+        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+        // Only apply hide/show if scrolled past a certain point (e.g., 100px)
+        if (scrollTop > 100) {
+            if (scrollTop > lastScrollTop) {
+                // Scrolling Down
+                topNav.classList.remove('top-nav--visible');
+            } else {
+                // Scrolling Up
+                topNav.classList.add('top-nav--visible');
+            }
+        }
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
+    }, false);
+} 
 
 // --- Fade-in sections on scroll ---
 const sectionsToFade = document.querySelectorAll('.fade-in-section');
@@ -111,4 +132,10 @@ if (heroSection && logoContainer) {
     }
 
     window.addEventListener('scroll', animateLogo);
+} else if (logoContainer) {
+    // For any other page, add the 'scrolled' class after a short delay.
+    // This allows the CSS transition for opacity to trigger, creating a fade-in effect.
+    setTimeout(() => {
+        logoContainer.classList.add('logo-container--scrolled');
+    }, 100); // 100ms delay
 }

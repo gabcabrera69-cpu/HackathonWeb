@@ -253,27 +253,48 @@ predictBtn.addEventListener("click", async () => {
 
     let predictionHTML = `<div class="step">✅ Prediction complete! Found ${result.count} potential objects.</div>`;
 
-    // Filter for confirmed planets (prediction == 2)
-    const confirmedPlanets = result.predictions.reduce((acc, pred, index) => {
-      if (pred === 2) {
-        acc.push({ index: index + 1, prediction: pred }); // Use 1-based index for display
-      }
-      return acc;
-    }, []);
+    // --- New: Count all prediction types ---
+    const counts = { 0: 0, 1: 0, 2: 0 };
+    const confirmedPlanets = []; // This will now hold data objects
+    result.predictions.forEach((pred, index) => {
+        counts[pred] = (counts[pred] || 0) + 1;
+        if (pred === 2) {
+            // Get the raw data for this planet from the initial upload result
+            const planetData = result.raw_data_for_prediction[index];
+            confirmedPlanets.push({ index: index + 1, data: planetData });
+        }
+    });
 
     predictionHTML += `<div class="metrics-grid">
                         <div class="metric-card">
                             <h4>Confirmed Planets Found</h4>
-                            <p>${confirmedPlanets.length}</p>
+                            <p>${counts[2]}</p>
+                        </div>
+                        <div class="metric-card">
+                            <h4>Candidates Found</h4>
+                            <p>${counts[1]}</p>
+                        </div>
+                        <div class="metric-card">
+                            <h4>False Positives</h4>
+                            <p>${counts[0]}</p>
                         </div>
                        </div>`;
 
     if (confirmedPlanets.length > 0) {
       predictionHTML += `<div class="plot-card">
                             <div class="plot-header"><h4>Discovered Planets (Prediction = 2)</h4></div>`;
-      let tableHTML = "<table><tr><th>Original Row #</th><th>Prediction</th></tr>";
+      let tableHTML = "<table><tr><th>Original Row #</th><th>Action</th></tr>";
       confirmedPlanets.forEach(planet => {
-        tableHTML += `<tr><td>${planet.index}</td><td>Confirmed Planet</td></tr>`;
+        // Create URL parameters from the planet's data
+        const params = new URLSearchParams({
+            radius: planet.data.pl_rade || 50, // Default to 50 if null
+            temp: planet.data.pl_eqt || 0,
+            insol: planet.data.pl_insol || 50,
+            stellar_temp: planet.data.st_teff || 'N/A',
+            stellar_radius: planet.data.st_rad || 'N/A',
+            period: planet.data.pl_orbper || 'N/A'
+        }).toString();
+        tableHTML += `<tr><td>${planet.index}</td><td><a href="planet.html?${params}" target="_blank" class="sim-link">Visualize in Simulator <i class="fas fa-external-link-alt"></i></a></td></tr>`;
       });
       tableHTML += "</table>";
       predictionHTML += tableHTML;

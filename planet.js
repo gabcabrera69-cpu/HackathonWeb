@@ -588,6 +588,7 @@ function animate() {
 
 window.onload = function () {
     animate();
+    initializeFromURL(); // Check for URL params on load
 };
 
 window.addEventListener('resize', () => {

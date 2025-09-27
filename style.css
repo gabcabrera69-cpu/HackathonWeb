@@ -40,11 +40,13 @@ body {
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%); /* Initial centered position for homepage */
     max-width: 1000px; /* Initial large size */
     width: 90%; /* Responsive width */
-    z-index: 1001; /* Above nav bars */
-    transition: all 0.5s ease-in-out;
+    z-index: 1002; /* Above nav bars and other content */
+    opacity: 0; /* Start invisible */
+    transition: all 0.5s ease-in-out, opacity 0.8s ease-in-out; /* Add opacity to transition */
+    display: block; /* Make the anchor a block element */
 }
 
 .logo-container--scrolled {
@@ -52,6 +54,12 @@ body {
     left: 15px;
     max-width: 300px; /* Final small size */
     transform: translate(0, 0);
+    opacity: 1; /* Fade to visible */
+}
+
+/* On the homepage, make the logo visible immediately in its initial state */
+.hero-section .logo-container {
+    opacity: 1;
 }
 
 .hero-section {
@@ -108,8 +116,9 @@ body {
     top: -100px; /* Start hidden above the viewport */
     left: 50%;
     transform: translateX(-50%); /* Center horizontally */
-    z-index: 1000;
-    transition: all 0.3s ease-in-out; /* Animate all properties for smooth centering */
+    z-index: 1000; 
+    opacity: 0; /* Start invisible for fade-in effect */
+    transition: top 0.4s ease-in-out, opacity 0.4s ease-in-out; /* Animate top and opacity */
     box-sizing: border-box;
     border-radius: 50px; /* This creates the circular/pill shape */
 }
@@ -132,6 +141,7 @@ body {
 
 .top-nav--visible {
     top: 20px; /* Slides the nav bar into view with some top margin */
+    opacity: 1; /* Make it fully visible */
 }
 
 

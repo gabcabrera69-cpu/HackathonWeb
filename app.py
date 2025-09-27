@@ -391,11 +391,16 @@ def predict_with_pretrained():
         else:
             X = global_df_core.copy()
 
+        # Get the raw data before normalization for display purposes
+        # We assume the order is preserved from the original upload
+        raw_data_for_prediction = X.to_dict(orient='records')
+
         preds = model.predict(X)
 
         return jsonify({
             "predictions": preds.tolist(),
-            "count": len(preds)
+            "count": len(preds),
+            "raw_data_for_prediction": raw_data_for_prediction # Send the data to the frontend
         })
     
     except Exception as e:

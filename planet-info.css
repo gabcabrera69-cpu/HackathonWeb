@@ -1,0 +1,63 @@
+/* --- Planet Info Panel Styles --- */
+.planet-info-panel {
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border-left: 3px solid #ffd700;
+    border-radius: 0 8px 8px 0;
+    padding: 20px;
+    color: #e0e0e0;
+    width: 280px;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.planet-info-panel.visible {
+    opacity: 1;
+}
+
+.planet-info-panel h3 {
+    margin-top: 0;
+    color: #ffd700;
+    font-size: 1.5em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    align-items: center;
+}
+
+.info-grid .fas {
+    color: #ccc;
+    width: 20px;
+    text-align: center;
+}
+
+.info-grid span {
+    font-weight: bold;
+    color: #fff;
+}
+
+.info-grid .label {
+    color: #aaa;
+    font-weight: normal;
+}
+
+@media (max-width: 768px) {
+    .planet-info-panel {
+        top: auto;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+    }
+}
