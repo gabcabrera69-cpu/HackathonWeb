@@ -57,8 +57,9 @@
 
 .info-grid {
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto auto 1fr; /* Create three columns: icon, label, value */
     gap: 12px;
+    row-gap: 15px; /* Add a bit more vertical space between rows */
     align-items: center;
 }
 
@@ -80,10 +81,31 @@
 
 @media (max-width: 768px) {
     .planet-info-panel {
-        top: auto;
-        bottom: 20px;
-        left: 50%;
+        top: 150px;
+        bottom: auto;
+        left: 30%;
         transform: translateX(-50%);
-        width: 90%;
+        width: 50%;
+    }
+
+    .planet-info-panel h3 {
+        font-size: 1.1em;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+    }
+
+    .info-grid span, .info-grid .label, .info-grid .fas {
+        font-size: 0.8em;
+    }
+
+    .planet-info-panel.collapsed {
+        /* On mobile, slide it off to the left, similar to desktop */
+        transform: translateX(-154%);
+    }
+
+    .planet-info-panel.collapsed .panel-toggle-btn {
+        /* Reposition the button to the right edge of the screen */
+        transform: rotate(180deg);
+        opacity: 1;
     }
 }

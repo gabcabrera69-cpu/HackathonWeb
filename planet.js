@@ -402,12 +402,18 @@ camera.position.z = originalCameraZ;
 
 function updatePlanetRadius(value) {
     if (planet) {
+        // If the input ends in a dot or is empty, don't parse it yet.
+        if (typeof value === 'string' && (value.endsWith('.') || value === '')) {
+            radiusInput.value = value;
+            return;
+        }
+
         const newRadius = parseFloat(value);
-        const scaleFactor = newRadius / 50;
+        const scaleFactor = newRadius;
         planet.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
         if (comparisonObject) {
-            const userPlanetRadius = newRadius;
+            const userPlanetRadius = newRadius * 50; // The actual radius in three.js units
             const comparisonRadius = comparisonObject.geometry.parameters.radius;
             const halfGap = 30 / 2;
             planet.position.x = -userPlanetRadius - halfGap;
@@ -415,7 +421,7 @@ function updatePlanetRadius(value) {
             const leftEdge = planet.position.x - userPlanetRadius;
             const rightEdge = comparisonObject.position.x + comparisonRadius;
             const totalWidth = rightEdge - leftEdge;
-            const totalHeight = Math.max(userPlanetRadius, comparisonRadius) * 2;
+            const totalHeight = Math.max(userPlanetRadius, comparisonRadius) * 2; // Use actual radius
 
             const fov = camera.fov * (Math.PI / 180);
             const distanceForHeight = totalHeight / (2 * Math.tan(fov / 2));
@@ -423,9 +429,10 @@ function updatePlanetRadius(value) {
 
             cameraTargetZ = Math.max(distanceForHeight, distanceForWidth) * 1.2;
         } else {
-            const radiusForCamera = Math.max(50, Math.ceil(newRadius / 100) * 100);
-            const totalWidth = radiusForCamera * 2;
-            const totalHeight = radiusForCamera * 2;
+            const actualRadius = newRadius * 50;
+            const radiusForCamera = Math.max(50, Math.ceil(actualRadius / 100) * 100);
+            const totalWidth = radiusForCamera * 2; // Use actual radius
+            const totalHeight = radiusForCamera * 2; // Use actual radius
 
             const fov = camera.fov * (Math.PI / 180);
             const distanceForHeight = totalHeight / (2 * Math.tan(fov / 2));
@@ -439,6 +446,12 @@ function updatePlanetRadius(value) {
 }
 
 function updatePlanetTemperature(value) {
+    // If the input ends in a dot or is empty, don't parse it yet.
+    if (typeof value === 'string' && (value.endsWith('.') || value.endsWith('-') || value === '')) {
+        tempInput.value = value;
+        return;
+    }
+
     const temp = parseFloat(value);
     const r = Math.min(1, Math.max(0, (temp + 100) / 200));
     const b = Math.min(1, Math.max(0, (-temp + 100) / 200));
@@ -454,6 +467,12 @@ function updatePlanetTemperature(value) {
 
 function updateInsolation(value) {
     if (directionalLight) {
+        // If the input ends in a dot or is empty, don't parse it yet.
+        if (typeof value === 'string' && (value.endsWith('.') || value === '')) {
+            insolationInput.value = value;
+            return;
+        }
+
         const intensity = parseFloat(value) / 100;
         directionalLight.intensity = intensity;
         planetMaterial.uniforms.uLightIntensity.value = intensity;
@@ -470,12 +489,18 @@ function initializeFromURL() {
     const name = params.get('name');
 
     if (radius || temp || insol) {
+        // --- Temperature Handling ---
+        const tempInKelvin = parseFloat(temp || 0);
+        // Convert Kelvin to Celsius for the internal color/slider logic
+        const tempInCelsius = tempInKelvin - 273.15;
+
         if (radius) updatePlanetRadius(radius);
-        if (temp) updatePlanetTemperature(temp);
+        if (temp) updatePlanetTemperature(tempInCelsius);
         if (insol) updateInsolation(insol);
 
+        // Display the original, correct units in the info panel
         document.getElementById('info-radius').textContent = `${parseFloat(radius || 0).toFixed(2)} Earth Radii`;
-        document.getElementById('info-temp').textContent = `${parseFloat(temp || 0).toFixed(2)} °C`;
+        document.getElementById('info-temp').textContent = `${tempInKelvin.toFixed(2)} K`;
         document.getElementById('info-insol').textContent = `${parseFloat(insol || 0).toFixed(2)} Earth Flux`;
         document.getElementById('info-stellar-temp').textContent = `${params.get('stellar_temp')} K`;
         document.getElementById('info-stellar-radius').textContent = `${params.get('stellar_radius')} Solar Radii`;
@@ -494,11 +519,67 @@ function initializeFromURL() {
         if (infoPanel) {
             infoPanel.classList.add('visible');
         }
+
+        // Lock the controls since this is a pre-defined planet
+        const controlsToLock = [
+            radiusSlider, radiusInput,
+            tempSlider, tempInput,
+            insolationSlider, insolationInput
+        ];
+        controlsToLock.forEach(control => {
+            if (control) {
+                control.disabled = true;
+                // Add a tooltip to the parent container to explain why it's locked
+                if (control.parentElement.classList.contains('slider-container')) {
+                    control.parentElement.title = "Save this planet, then create a 'New Planet' to customize values.";
+                }
+            }
+        });
+
     } else {
         if (infoPanel) {
             infoPanel.style.display = 'none';
         }
     }
+}
+
+function resetToCustomPlanet() {
+    // 1. Unlock controls
+    const controlsToUnlock = [
+        radiusSlider, radiusInput,
+        tempSlider, tempInput,
+        insolationSlider, insolationInput
+    ];
+    controlsToUnlock.forEach(control => {
+        if (control) {
+            control.disabled = false;
+            // Remove the tooltip from the parent container
+            if (control.parentElement.classList.contains('slider-container')) {
+                control.parentElement.title = "";
+            }
+        }
+    });
+
+    // 2. Reset values to their defaults
+    const defaultRadius = 50;
+    const defaultTemp = 0;
+    const defaultInsolation = 50;
+    const defaultName = "My Custom Planet";
+
+    updatePlanetRadius(defaultRadius);
+    updatePlanetTemperature(defaultTemp);
+    updateInsolation(defaultInsolation);
+
+    const planetNameInput = document.getElementById('planet-name-input');
+    if (planetNameInput) {
+        planetNameInput.value = defaultName;
+    }
+
+    // 3. Hide info panel and clear any comparisons
+    if (infoPanel) {
+        infoPanel.classList.remove('visible', 'collapsed');
+    }
+    showComparison('none'); // This also resets the camera zoom
 }
 
 function animate() {
@@ -524,21 +605,26 @@ function init() {
     createStarfield();
 
     if (radiusSlider && radiusInput) {
-        radiusSlider.addEventListener('input', (event) => updatePlanetRadius(event.target.value));
-        radiusInput.addEventListener('input', (event) => updatePlanetRadius(event.target.value));
+        radiusSlider.addEventListener('input', (event) => updatePlanetRadius(event.target.valueAsNumber));
+        radiusInput.addEventListener('input', (event) => updatePlanetRadius(event.target.value)); // Pass string to handle decimals
     }
     if (tempSlider && tempInput) {
-        tempSlider.addEventListener('input', (event) => updatePlanetTemperature(event.target.value));
-        tempInput.addEventListener('input', (event) => updatePlanetTemperature(event.target.value));
+        tempSlider.addEventListener('input', (event) => updatePlanetTemperature(event.target.valueAsNumber));
+        tempInput.addEventListener('input', (event) => updatePlanetTemperature(event.target.value)); // Pass string
     }
     if (insolationSlider && insolationInput) {
-        insolationSlider.addEventListener('input', (event) => updateInsolation(event.target.value));
-        insolationInput.addEventListener('input', (event) => updateInsolation(event.target.value));
+        insolationSlider.addEventListener('input', (event) => updateInsolation(event.target.valueAsNumber));
+        insolationInput.addEventListener('input', (event) => updateInsolation(event.target.value)); // Pass string
     }
 
     const randomizeButton = document.getElementById('randomize-btn');
     if (randomizeButton) {
         randomizeButton.addEventListener('click', randomizePlanet);
+    }
+
+    const newPlanetButton = document.getElementById('new-planet-btn');
+    if (newPlanetButton) {
+        newPlanetButton.addEventListener('click', resetToCustomPlanet);
     }
 
     const storePlanetButton = document.getElementById('store-planet-btn');

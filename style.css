@@ -841,16 +841,22 @@ footer {
 
     .nav-link {
         padding: 6px 10px; /* Reduce padding */
-        font-size: 0.8em; /* Reduce font size */
+        font-size: 0.7em;
         font-weight: normal; /* Make font less bold */
     }
     
     .top-nav {
-        padding: 0.5rem; /* Reduce padding on mobile */
+        padding: 0.5rem;
     }
     .top-nav ul {
+        flex-wrap: wrap; /* Allow items to wrap to the next line */
         gap: 10px; /* Reduce gap between items */
         justify-content: space-around; /* Distribute items evenly */
+    }
+
+    .top-nav li {
+        /* Ensure 3 items fit on the first row, forcing the rest to wrap */
+        flex-basis: 30%;
     }
 
     .content-row {
@@ -865,12 +871,12 @@ footer {
     }
 
     #planet-label {
-        bottom: 90px;
+        bottom: 115px; /* Moved up */
         font-size: 1.8rem;
     }
 
     #planet-description {
-        bottom: 65px;
+        bottom: 70px; /* Moved down slightly */
         font-size: 0.9rem;
         max-width: 80%;
     }

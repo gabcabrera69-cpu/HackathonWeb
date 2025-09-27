@@ -149,6 +149,16 @@ input[type="number"] {
     font-size: 0.9em;
 }
 
+/* Style for disabled sliders and inputs */
+input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+input[type="range"]:disabled::-webkit-slider-thumb {
+    cursor: not-allowed;
+}
+
 /* Custom slider thumb and track styles */
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
@@ -178,7 +188,7 @@ input[type="range"]:hover::-moz-range-thumb {
     background: #c3c3ff;
 }
 
-#randomize-btn {
+#randomize-btn, #store-planet-btn, #new-planet-btn {
     background: #ffd700;
     border: none;
     padding: 10px 20px;

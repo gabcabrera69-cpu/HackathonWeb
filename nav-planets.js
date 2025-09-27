@@ -51,13 +51,23 @@ if (navContainer) {
     camera.position.z = 60; // Pull camera back to compensate for the narrower FOV
 
     // 3. Define the layout positions and scales for the planets
-    const layout = [
+    const desktopLayout = [
         { position: new THREE.Vector3(-40, 0, -25), scale: 5.5 }, // Far-left
         { position: new THREE.Vector3(-26, 0, -15), scale: 7.0 }, // Mid-left
         { position: new THREE.Vector3(0, 0, 0),     scale: 8.5 }, // Center
         { position: new THREE.Vector3(26, 0, -15),  scale: 7.0 }, // Mid-right
         { position: new THREE.Vector3(40, 0, -25),  scale: 5.5 }  // Far-right
     ];
+
+    const mobileLayout = [
+        { position: new THREE.Vector3(-25, 0, -20), scale: 3.5 }, // Far-left
+        { position: new THREE.Vector3(-15, 0, -10), scale: 4.5 }, // Mid-left
+        { position: new THREE.Vector3(0, 0, 0),     scale: 5.5 }, // Center
+        { position: new THREE.Vector3(15, 0, -10),  scale: 4.5 }, // Mid-right
+        { position: new THREE.Vector3(25, 0, -20),  scale: 3.5 }  // Far-right
+    ];
+
+    let currentLayout = window.innerWidth <= 768 ? mobileLayout : desktopLayout;
 
     // Planet Data (Texture, Link) - Positions will be assigned dynamically
     const planetsData = [
@@ -153,7 +163,7 @@ if (navContainer) {
             const offset = i - currentFocusIndex;
             const layoutIndex = (2 + offset + numPlanets) % numPlanets; // 2 is the center slot
 
-            const targetLayout = layout[layoutIndex];
+            const targetLayout = currentLayout[layoutIndex];
             planet.targetPosition.copy(targetLayout.position);
             planet.targetScale.set(targetLayout.scale, targetLayout.scale, targetLayout.scale);
         }
@@ -232,6 +242,7 @@ if (navContainer) {
             camera.aspect = navContainer.clientWidth / navContainer.clientHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(navContainer.clientWidth, navContainer.clientHeight);
+            currentLayout = window.innerWidth <= 768 ? mobileLayout : desktopLayout;
         }
     });
 }
