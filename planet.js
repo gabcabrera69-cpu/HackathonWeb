@@ -1,7 +1,7 @@
 // --- Planet Generator Logic ---
 const container = document.getElementById('planet-container');
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 100000); // Increased far clipping plane
+const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 100000);
 const renderer = new THREE.WebGLRenderer({
     antialias: true,
     alpha: true
@@ -15,16 +15,13 @@ const radiusInput = document.getElementById('radius-input');
 const tempInput = document.getElementById('temp-input');
 const insolationInput = document.getElementById('insolation-input');
 const loadingIndicator = document.getElementById('loading-indicator');
+const infoPanel = document.getElementById('planet-info-panel');
 
 if (container) {
-    // Update camera aspect ratio
     camera.aspect = container.clientWidth / container.clientHeight;
     camera.updateProjectionMatrix();
-    // Set renderer size to the container's dimensions
     renderer.setSize(container.clientWidth, container.clientHeight);
-    // Make the renderer's canvas transparent
     renderer.setClearColor(0x000000, 0);
-    // Add the canvas to the container
     container.appendChild(renderer.domElement);
 }
 
@@ -59,8 +56,6 @@ const textures = [
     'https://i.imgur.com/AUDyk0h.png'  
 
 ];
-
-
 // Shader material to blend texture and color
 const vertexShader = `
     varying vec2 vUv;
@@ -93,7 +88,6 @@ const atmosphereFragmentShader = `
         gl_FragColor = vec4(uGlowColor, 1.0) * intensity;
     }
 `;
-
 
 const fragmentShader = `
     uniform sampler2D uTexture;
@@ -134,7 +128,6 @@ const planetMaterial = new THREE.ShaderMaterial({
 const planet = new THREE.Mesh(geometry, planetMaterial);
 scene.add(planet);
 
-// --- Atmosphere Creation ---
 function createAtmosphere(radius = 50, glowColor = new THREE.Color(0x93d5f0), scale = 1.05) {
     const atmosphereGeometry = new THREE.SphereGeometry(radius, 64, 64);
     const atmosphereMaterial = new THREE.ShaderMaterial({
@@ -151,11 +144,9 @@ function createAtmosphere(radius = 50, glowColor = new THREE.Color(0x93d5f0), sc
 }
 
 const planetAtmosphere = createAtmosphere();
-// Scale the atmosphere to be slightly larger than the planet
 planetAtmosphere.scale.set(1.05, 1.05, 1.05);
 planet.add(planetAtmosphere);
 
-// --- Starfield Creation ---
 let starfield;
 
 function createStarfield() {
@@ -183,11 +174,9 @@ function createStarfield() {
     scene.add(starfield);
 }
 
-// --- Camera Control ---
 const originalCameraZ = 200;
 let cameraTargetZ = originalCameraZ;
 
-// --- Drag-to-Rotate Logic ---
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let isDragging = false;
@@ -196,15 +185,12 @@ let previousMousePosition = { x: 0, y: 0 };
 
 if (renderer.domElement) {
     renderer.domElement.addEventListener('mousedown', (e) => {
-        // Calculate mouse position in normalized device coordinates (-1 to +1)
         const rect = renderer.domElement.getBoundingClientRect();
         mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
         mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
-        // Update the picking ray with the camera and mouse position
         raycaster.setFromCamera(mouse, camera);
 
-        // Calculate objects intersecting the picking ray
         const objectsToIntersect = [planet];
         if (comparisonObject) {
             objectsToIntersect.push(comparisonObject);
@@ -212,7 +198,6 @@ if (renderer.domElement) {
         const intersects = raycaster.intersectObjects(objectsToIntersect, true); 
 
         if (intersects.length > 0) {
-            // The user clicked on a planet (or its atmosphere)
             draggedObject = intersects[0].object.parent === scene ? intersects[0].object : intersects[0].object.parent;
         }
 
@@ -237,7 +222,6 @@ if (renderer.domElement) {
             y: e.clientY - previousMousePosition.y
         };
 
-        // Apply rotation only to the dragged object
         const rotationSpeed = 0.005;
         if (draggedObject) {
             draggedObject.rotation.y += deltaMove.x * rotationSpeed;
@@ -248,7 +232,6 @@ if (renderer.domElement) {
     });
 }
 
-// --- Comparison Logic ---
 let comparisonObject = null;
 let storedPlanets = []; // Array to hold multiple stored planets
 const comparisonData = {
@@ -275,11 +258,9 @@ const comparisonData = {
 };
 
 function showComparison(bodyName) {
-    // --- Cleanup existing comparison object ---
     if (comparisonObject) {
         scene.remove(comparisonObject);
         comparisonObject.geometry.dispose();
-        // Also dispose of the comparison object's materials and its atmosphere's resources
         if (Array.isArray(comparisonObject.material)) {
             comparisonObject.material.forEach(m => m.dispose());
         } else {
@@ -290,12 +271,10 @@ function showComparison(bodyName) {
             comparisonObject.children[0].material.dispose();
         }
         comparisonObject = null;
-        planet.position.x = 0; // Reset user planet position
-        // Recalculate zoom instead of just resetting
+        planet.position.x = 0;
         showComparison('none');
     }
 
-    // --- Create new comparison object ---
     if (bodyName && bodyName !== 'none') {
         let data;
         let compMaterial;
@@ -306,12 +285,8 @@ function showComparison(bodyName) {
             if (index >= storedPlanets.length) return; // Invalid index
 
             data = storedPlanets[index];
-
-            // Create a new texture from the saved image data to ensure it's independent
             const storedTexture = new THREE.Texture(data.textureImage);
-            storedTexture.needsUpdate = true; // Tell three.js to upload the texture to the GPU
-
-            // Create a material for the stored planet using its saved properties
+            storedTexture.needsUpdate = true;
             const storedUniforms = {
                 uTexture: { value: storedTexture },
                 uColor: { value: data.color.clone() },
@@ -333,24 +308,18 @@ function showComparison(bodyName) {
         const compGeometry = new THREE.SphereGeometry(data.radius, 64, 64);
         comparisonObject = new THREE.Mesh(compGeometry, compMaterial);
 
-        // Add atmosphere to the comparison object
         const comparisonAtmosphere = createAtmosphere(data.radius, atmosphereColor);
-        // Scale it slightly larger than the planet itself
         comparisonAtmosphere.scale.set(1.02, 1.02, 1.02);
         comparisonObject.add(comparisonAtmosphere);
 
+        const userPlanetRadius = planet.scale.x * 50;
+        const halfGap = 30 / 2;
 
-        // Position the comparison object to the right of the user's planet
-        const userPlanetRadius = planet.scale.x * 50; // Get current radius
-        const halfGap = 30 / 2; // The gap is 30 units
-
-        // --- Centering Logic ---
         planet.position.x = -userPlanetRadius - halfGap;
         comparisonObject.position.x = data.radius + halfGap;
 
         scene.add(comparisonObject);
 
-        // --- Calculate required camera zoom ---
         const leftEdge = planet.position.x - userPlanetRadius;
         const rightEdge = comparisonObject.position.x + data.radius;
         const totalWidth = rightEdge - leftEdge;
@@ -362,12 +331,9 @@ function showComparison(bodyName) {
 
         cameraTargetZ = Math.max(distanceForHeight, distanceForWidth) * 1.4;
     } else {
-        // If 'Clear' is pressed, ensure camera resets
         const userPlanetRadius = planet.scale.x * 50;
         planet.position.x = 0;
 
-        // --- Recalculate camera zoom for the single planet ---
-        // would reset the zoom to the default, instead of fitting the planet.
         const radiusForCamera = Math.max(50, Math.ceil(userPlanetRadius / 100) * 100);
         const totalWidth = radiusForCamera * 2;
         const totalHeight = radiusForCamera * 2;
@@ -379,40 +345,32 @@ function showComparison(bodyName) {
     }
 }
 
-// --- Store Planet Logic ---
 function storeCustomPlanet() {
-    // 1. Save the current planet's state
+    const planetNameInput = document.getElementById('planet-name-input');
     const planetData = {
+        name: planetNameInput ? planetNameInput.value : 'Custom Planet',
         radius: planet.scale.x * 50,
-        // The texture's image source needs to be saved, not the texture object itself,
-        // to prevent it from being overwritten when the main planet's texture changes.
         textureImage: planetMaterial.uniforms.uTexture.value.image,
         color: planetMaterial.uniforms.uColor.value.clone(),
         atmosphereColor: planetAtmosphere.material.uniforms.uGlowColor.value.clone()
     };
-
-    // 2. Add to our array of stored planets
     storedPlanets.push(planetData);
     const storedIndex = storedPlanets.length - 1;
 
-    // 3. Create a new button for the stored planet
     const newButton = document.createElement('button');
     newButton.classList.add('compare-btn');
     newButton.dataset.body = `stored_${storedIndex}`;
-    newButton.textContent = `Custom ${storedIndex + 1}`;
+    newButton.textContent = planetData.name;
 
-    // 4. Add an event listener to the new button
     newButton.addEventListener('click', () => {
         showComparison(newButton.dataset.body);
     });
 
-    // 5. Add the new button to the UI before the "Clear" button
     const clearButton = document.getElementById('clear-comparison-btn');
     if (clearButton) {
         clearButton.parentNode.insertBefore(newButton, clearButton);
     }
 }
-
 
 // Function to randomly select and apply a new texture
 function randomizePlanet() {
@@ -425,11 +383,7 @@ function randomizePlanet() {
         (texture) => {
             planetMaterial.uniforms.uTexture.value = texture;
             if (loadingIndicator) loadingIndicator.style.display = 'none';
-        },
-        // onProgress callback (optional)
-        undefined,
-        // onError callback
-        (err) => {
+        }, undefined, (err) => {
             console.error('An error occurred loading the texture:', err);
             if (loadingIndicator) loadingIndicator.style.display = 'none';
         }
@@ -437,12 +391,6 @@ function randomizePlanet() {
 }
 
 // Initial texture on page load
-randomizePlanet();
-
-// Create the starfield background
-createStarfield();
-
-// --- Other Three.js Setup ---
 const ambientLight = new THREE.AmbientLight(0x404040, 1);
 scene.add(ambientLight);
 
@@ -452,23 +400,18 @@ scene.add(directionalLight);
 
 camera.position.z = originalCameraZ;
 
-
 function updatePlanetRadius(value) {
     if (planet) {
         const newRadius = parseFloat(value);
         const scaleFactor = newRadius / 50;
         planet.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
-        // Reposition comparison object if it exists
         if (comparisonObject) {
             const userPlanetRadius = newRadius;
             const comparisonRadius = comparisonObject.geometry.parameters.radius;
-            
-            // Recalculate positions to keep the pair centered
-            const halfGap = 30 / 2; // The gap is 30 units
+            const halfGap = 30 / 2;
             planet.position.x = -userPlanetRadius - halfGap;
 
-            // --- Recalculate camera zoom to fit the new size ---
             const leftEdge = planet.position.x - userPlanetRadius;
             const rightEdge = comparisonObject.position.x + comparisonRadius;
             const totalWidth = rightEdge - leftEdge;
@@ -480,8 +423,6 @@ function updatePlanetRadius(value) {
 
             cameraTargetZ = Math.max(distanceForHeight, distanceForWidth) * 1.2;
         } else {
-            // --- Recalculate camera zoom for the single planet ---
-            // Use a stepped radius for camera calculation to show size change before zooming.
             const radiusForCamera = Math.max(50, Math.ceil(newRadius / 100) * 100);
             const totalWidth = radiusForCamera * 2;
             const totalHeight = radiusForCamera * 2;
@@ -490,10 +431,8 @@ function updatePlanetRadius(value) {
             const distanceForHeight = totalHeight / (2 * Math.tan(fov / 2));
             const distanceForWidth = totalWidth / (2 * Math.tan(fov / 2) * camera.aspect);
 
-            // Set the target Z position, adding a buffer for padding
             cameraTargetZ = Math.max(distanceForHeight, distanceForWidth) * 1.4;
         }
-        // Sync slider and input
         radiusInput.value = newRadius;
         radiusSlider.value = newRadius;
     }
@@ -501,19 +440,14 @@ function updatePlanetRadius(value) {
 
 function updatePlanetTemperature(value) {
     const temp = parseFloat(value);
-    // Changes color based on temperature: blue (cold) to red (hot)
     const r = Math.min(1, Math.max(0, (temp + 100) / 200));
     const b = Math.min(1, Math.max(0, (-temp + 100) / 200));
     const newColor = new THREE.Color(r, 0.5, b);
-    
-    // Update the shader's color uniform
     planetMaterial.uniforms.uColor.value = newColor;
-    
-    // Update atmosphere color as well
+
     const atmosphereColor = new THREE.Color(r, 0.8, b);
     planetAtmosphere.material.uniforms.uGlowColor.value = atmosphereColor;
 
-    // Sync slider and input
     tempInput.value = temp;
     tempSlider.value = temp;
 }
@@ -523,53 +457,52 @@ function updateInsolation(value) {
         const intensity = parseFloat(value) / 100;
         directionalLight.intensity = intensity;
         planetMaterial.uniforms.uLightIntensity.value = intensity;
-        // Sync slider and input
         insolationInput.value = value;
         insolationSlider.value = value;
     }
 }
 
+function initializeFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const radius = params.get('radius');
+    const temp = params.get('temp');
+    const insol = params.get('insol');
+    const name = params.get('name');
 
+    if (radius || temp || insol) {
+        if (radius) updatePlanetRadius(radius);
+        if (temp) updatePlanetTemperature(temp);
+        if (insol) updateInsolation(insol);
 
-if (radiusSlider && radiusInput) {
-    radiusSlider.addEventListener('input', (event) => updatePlanetRadius(event.target.value));
-    radiusInput.addEventListener('input', (event) => updatePlanetRadius(event.target.value));
-    updatePlanetRadius(radiusSlider.value);
+        document.getElementById('info-radius').textContent = `${parseFloat(radius || 0).toFixed(2)} Earth Radii`;
+        document.getElementById('info-temp').textContent = `${parseFloat(temp || 0).toFixed(2)} °C`;
+        document.getElementById('info-insol').textContent = `${parseFloat(insol || 0).toFixed(2)} Earth Flux`;
+        document.getElementById('info-stellar-temp').textContent = `${params.get('stellar_temp')} K`;
+        document.getElementById('info-stellar-radius').textContent = `${params.get('stellar_radius')} Solar Radii`;
+        document.getElementById('info-period').textContent = `${params.get('period')} days`;
+
+        if (name) {
+            const nameHeader = document.getElementById('planet-name-header');
+            nameHeader.firstChild.textContent = name; // Update the text part of the h3
+            
+            const planetNameInput = document.getElementById('planet-name-input');
+            if (planetNameInput) {
+                planetNameInput.value = name;
+            }
+        }
+
+        if (infoPanel) {
+            infoPanel.classList.add('visible');
+        }
+    } else {
+        if (infoPanel) {
+            infoPanel.style.display = 'none';
+        }
+    }
 }
-if (tempSlider && tempInput) {
-    tempSlider.addEventListener('input', (event) => updatePlanetTemperature(event.target.value));
-    tempInput.addEventListener('input', (event) => updatePlanetTemperature(event.target.value));
-    updatePlanetTemperature(tempSlider.value);
-}
-if (insolationSlider && insolationInput) {
-    insolationSlider.addEventListener('input', (event) => updateInsolation(event.target.value));
-    insolationInput.addEventListener('input', (event) => updateInsolation(event.target.value));
-    updateInsolation(insolationSlider.value);
-}
-
-//new texture function
-const randomizeButton = document.getElementById('randomize-btn');
-if (randomizeButton) {
-    randomizeButton.addEventListener('click', randomizePlanet);
-}
-
-const storePlanetButton = document.getElementById('store-planet-btn');
-if (storePlanetButton) {
-    storePlanetButton.addEventListener('click', storeCustomPlanet);
-}
-
-
-//listeners for comparison buttons
-const compareButtons = document.querySelectorAll('.compare-btn');
-compareButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        showComparison(button.dataset.body);
-    });
-});
 
 function animate() {
     requestAnimationFrame(animate);
-    // Only apply automatic rotation if the user is not dragging
     if (!isDragging) {
         if (planet) {
             planet.rotation.y += 0.005;
@@ -586,15 +519,59 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-window.onload = function () {
-    animate();
-    initializeFromURL(); // Check for URL params on load
-};
+function init() {
+    randomizePlanet();
+    createStarfield();
 
-window.addEventListener('resize', () => {
+    if (radiusSlider && radiusInput) {
+        radiusSlider.addEventListener('input', (event) => updatePlanetRadius(event.target.value));
+        radiusInput.addEventListener('input', (event) => updatePlanetRadius(event.target.value));
+    }
+    if (tempSlider && tempInput) {
+        tempSlider.addEventListener('input', (event) => updatePlanetTemperature(event.target.value));
+        tempInput.addEventListener('input', (event) => updatePlanetTemperature(event.target.value));
+    }
+    if (insolationSlider && insolationInput) {
+        insolationSlider.addEventListener('input', (event) => updateInsolation(event.target.value));
+        insolationInput.addEventListener('input', (event) => updateInsolation(event.target.value));
+    }
+
+    const randomizeButton = document.getElementById('randomize-btn');
+    if (randomizeButton) {
+        randomizeButton.addEventListener('click', randomizePlanet);
+    }
+
+    const storePlanetButton = document.getElementById('store-planet-btn');
+    if (storePlanetButton) {
+        storePlanetButton.addEventListener('click', storeCustomPlanet);
+    }
+
+    const compareButtons = document.querySelectorAll('.compare-btn');
+    compareButtons.forEach(button => {
+        button.addEventListener('click', () => showComparison(button.dataset.body));
+    });
+
+    initializeFromURL();
+    animate();
+}
+
+function setupEventListeners() {
+    const toggleButton = document.getElementById('toggle-info-panel');
+    if (toggleButton && infoPanel) {
+        toggleButton.addEventListener('click', () => {
+            infoPanel.classList.toggle('collapsed');
+        });
+    }
+}
+
+function onWindowResize() {
     if (container) {
         camera.aspect = container.clientWidth / container.clientHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(container.clientWidth, container.clientHeight);
     }
-});
+}
+
+window.addEventListener('resize', onWindowResize);
+setupEventListeners();
+init();

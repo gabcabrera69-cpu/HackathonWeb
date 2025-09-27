@@ -20,10 +20,14 @@ CORS(app)  # Enable CORS for all routes
 global global_features
 global global_target
 global global_df_core
+global global_df_unscaled
+global global_predictions
 
 global_features = None
 global_target = None
 global_df_core = None
+global_df_unscaled = None
+global_predictions = None
 
 def extract_features_and_target(df, feature_keywords, target_keywords):
     # Filter features to only those present in df
@@ -64,7 +68,7 @@ def home():
 
 @app.route("/upload", methods=["POST"])
 def upload_csv():
-    global global_features, global_target, global_df_core
+    global global_features, global_target, global_df_core, global_df_unscaled, global_predictions
 
     file = request.files.get("file")
     if not file:
@@ -74,6 +78,9 @@ def upload_csv():
 
     # Possible target column names
     target_keywords = ["koi_disposition", "tfopwg_disp", "disposition"]
+
+    # Possible identifier column names
+    id_keywords = ["kepoi_name", "pl_name", "kepid", "tic_id"]
 
     df, header_line, error = detect_header(raw_data, target_keywords)
     if error:
@@ -122,8 +129,12 @@ def upload_csv():
         'CONFIRMED': 2,
         'KP': 2
     }
+    
+    # Find the first available ID column
+    id_col = next((col for col in id_keywords if col in df.columns), None)
 
     # Extract features and target
+    # Add id_col to feature_cols if it exists, so it's preserved
     df_core, feature_cols, target_col = extract_features_and_target(df, feature_keywords, target_keywords)
 
     # Rename features for uniformity
@@ -144,6 +155,10 @@ def upload_csv():
 
     df_core.rename(columns=rename_map, inplace=True)
 
+    # Add the original ID column to df_core if it was found
+    if id_col:
+        df_core[id_col] = df[id_col]
+
     # Map target to numeric
     df_core['target'] = df_core[target_col].map(target_map)
     df_core = df_core[df_core['target'].notna()]
@@ -153,13 +168,16 @@ def upload_csv():
     df_core['target'] = df_core['target'].astype(int)
 
     # Fill missing numeric values with median
-    numeric_cols = df_core.select_dtypes(include='number').columns
+    numeric_cols = df_core.select_dtypes(include=np.number).columns.drop('target', errors='ignore')
     for col in numeric_cols:
         df_core[col] = df_core[col].fillna(df_core[col].median())
 
+    # Store the unscaled data before normalization
+    global_df_unscaled = df_core.copy()
+
     # Normalize numeric features
     scaler = MinMaxScaler()
-    feature_cols = list(df_core.columns.drop('target'))  # ensure it's a list
+    feature_cols = [col for col in df_core.columns if col not in ['target', id_col] and df_core[col].dtype in ['int64', 'float64']]
     df_core[feature_cols] = scaler.fit_transform(df_core[feature_cols])
 
     # Define feature order
@@ -175,10 +193,13 @@ def upload_csv():
     ]
 
     # Keep only features that exist in df_core
-    canonical_order = [col for col in canonical_order if col in df_core.columns]
+    final_cols = [col for col in canonical_order if col in df_core.columns]
+    # Add back the target and id columns
+    final_cols.append('target')
+    if id_col: final_cols.append(id_col)
 
     # Reorder columns
-    df_core = df_core[canonical_order + ['target']]
+    df_core = df_core[final_cols]
 
     # Prepare JSON-serializable data
     extracted_raw = df_core[feature_cols].head(5).to_dict(orient="records") if len(feature_cols) > 0 else []
@@ -194,9 +215,12 @@ def upload_csv():
     rad_cols = [c for c in feature_cols if 'rad' in c.lower()]
 
     # Store globally for training later
-    global_features = feature_cols
+    global_features = [col for col in df_core.columns if col not in ['target', id_col]]
     global_target = 'target'
-    global_df_core = df_core.copy()
+    global_df_core = df_core.copy() # This is the scaled data for the model
+
+    # Reset predictions when a new file is uploaded
+    global_predictions = None
 
     return jsonify({
         "header_line": header_line,
@@ -377,7 +401,7 @@ def train_model():
 
 @app.route("/predict", methods=["POST"])
 def predict_with_pretrained():
-    global global_df_core
+    global global_df_core, global_df_unscaled, global_predictions
     if global_df_core is None:
         return jsonify({"error": "No dataset uploaded yet."}), 400
     
@@ -386,16 +410,18 @@ def predict_with_pretrained():
         model = joblib.load("xgb_final_model_v2.pkl")
 
         # Separate features (exclude target if present)
-        if "target" in global_df_core.columns:
+        if "target" in global_df_core.columns: # This should be true
             X = global_df_core.drop(columns=["target"])
         else:
             X = global_df_core.copy()
 
-        # Get the raw data before normalization for display purposes
-        # We assume the order is preserved from the original upload
-        raw_data_for_prediction = X.to_dict(orient='records')
+        # Use the unscaled dataframe to get the original values for visualization
+        raw_data_for_prediction = global_df_unscaled.to_dict(orient='records')
 
         preds = model.predict(X)
+        
+        # Store predictions globally for download
+        global_predictions = preds.tolist()
 
         return jsonify({
             "predictions": preds.tolist(),
@@ -405,6 +431,33 @@ def predict_with_pretrained():
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/download_predictions", methods=["GET"])
+def download_predictions():
+    global global_df_unscaled, global_predictions
+    if global_df_unscaled is None or global_predictions is None:
+        return jsonify({"error": "No predictions have been generated to download."}), 400
+
+    try:
+        df_to_download = global_df_unscaled.copy()
+        df_to_download['prediction'] = global_predictions
+        
+        # Map numeric predictions back to human-readable labels
+        prediction_map = {0: 'FALSE POSITIVE', 1: 'CANDIDATE', 2: 'CONFIRMED'}
+        df_to_download['prediction_label'] = df_to_download['prediction'].map(prediction_map)
+
+        buf = io.BytesIO()
+        df_to_download.to_csv(buf, index=False)
+        buf.seek(0)
+        
+        return send_file(
+            buf,
+            mimetype="text/csv",
+            as_attachment=True,
+            download_name="orbital_horizon_predictions.csv"
+        )
+    except Exception as e:
+        return jsonify({"error": f"Failed to create CSV: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)

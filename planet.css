@@ -108,6 +108,22 @@ footer {
     backdrop-filter: blur(10px);
 }
 
+.name-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+#planet-name-input {
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid #555;
+    color: #fff;
+    border-radius: 5px;
+    padding: 8px;
+    text-align: center;
+}
+
 .slider-container {
     display: flex;
     flex-direction: column;

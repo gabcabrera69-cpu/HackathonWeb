@@ -5,6 +5,7 @@ const trainControlsSection = document.getElementById("trainControlsSection"); //
 const trainBtn = document.getElementById("trainBtn");
 const modelSelect = document.getElementById("modelSelect");
 const predictBtn = document.getElementById("predictBtn");
+const downloadPredictionsBtn = document.getElementById("downloadPredictionsBtn");
 const xgbParamsDiv = document.getElementById("xgbParams");
 
 modelSelect.addEventListener("change", () => {
@@ -33,6 +34,7 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
 
   preprocessingResultsDiv.innerHTML = ""; // Clear old preprocessing results
   trainingResultsDiv.innerHTML = ""; // Clear old training results
+  downloadPredictionsBtn.style.display = "none"; // Hide download button on new upload
   const step1 = addStep("Uploading and processing dataset...", true);
 
   let formData = new FormData();
@@ -291,6 +293,7 @@ predictBtn.addEventListener("click", async () => {
             temp: planet.data.pl_eqt || 0,
             insol: planet.data.pl_insol || 50,
             stellar_temp: planet.data.st_teff || 'N/A',
+            name: planet.data.kepoi_name || planet.data.pl_name || `Predicted Planet #${planet.index}`,
             stellar_radius: planet.data.st_rad || 'N/A',
             period: planet.data.pl_orbper || 'N/A'
         }).toString();
@@ -303,8 +306,41 @@ predictBtn.addEventListener("click", async () => {
 
     trainingResultsDiv.innerHTML = predictionHTML;
 
+    // Show the download button
+    downloadPredictionsBtn.style.display = "inline-block";
+
   } catch (err) {
     console.error("❌ Prediction error:", err);
     updateStep(step, "❌ Prediction Error: " + err.message);
+  }
+});
+
+// Download predictions
+downloadPredictionsBtn.addEventListener("click", async () => {
+  try {
+    const response = await fetch("https://orbital-horizon-backend.onrender.com/download_predictions", {
+      method: "GET"
+    });
+
+    if (!response.ok) {
+      const errorResult = await response.json();
+      throw new Error(errorResult.error || "Failed to download CSV.");
+    }
+
+    // Trigger file download
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = url;
+    a.download = "orbital_horizon_predictions.csv";
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+
+  } catch (err) {
+    alert("Download Error: " + err.message);
+    console.error("❌ Download error:", err);
   }
 });
